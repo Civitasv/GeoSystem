@@ -10,6 +10,15 @@ GdalTool::~GdalTool(void)
 {
 }
 
+
+gpc_vertex GdalTool::BuildVertex(float x, float y)
+{
+	gpc_vertex vertex; 
+	vertex.x = x; 
+	vertex.y = y; 
+	return vertex;
+}
+
 /**
 *	将shp解析为GeoJson格式
 */
@@ -106,6 +115,10 @@ void GdalTool::getDBF(const char* filename){
 CGeoLayer* GdalTool::readShape(const char* filename){
 	// 注册
 	GDALAllRegister();
+	// 解决中文路径
+	CPLSetConfigOption("GDAL_FILENAME_IS_UTF8","NO");
+	// 解决中文乱码问题
+	CPLSetConfigOption("SHAPE_ENCODING","");  
 	// 读取
 	GDALDataset* dataset = (GDALDataset*)GDALOpenEx(filename, GDAL_OF_VECTOR, NULL, NULL, NULL);
 	if( dataset == NULL )
@@ -120,7 +133,7 @@ CGeoLayer* GdalTool::readShape(const char* filename){
 	// 要素描述类对象
 	OGRFeatureDefn *poFeaDefn;
 	poFeaDefn = poLayer->GetLayerDefn();
-	geolayer->setLayerName(poLayer->GetName());
+	geolayer->setLayerName(QString::fromLocal8Bit(poLayer->GetName()));
 	OGREnvelope *envelope = new OGREnvelope;
 	poLayer->GetExtent(envelope);
 	geolayer->setRect(QRectF(QPointF(envelope->MinX,envelope->MaxY),QPointF(envelope->MaxX,envelope->MinY)));
@@ -144,14 +157,20 @@ CGeoLayer* GdalTool::readShape(const char* filename){
 			pt.setX(poPoint->getX());
 			pt.setY(poPoint->getY());
 			((CGeoPoint *)object)->setPoint(pt);
+			geolayer->type = 0;
+
 		}
 		else if(geo != NULL
 			&& wkbFlatten(geo->getGeometryType()) == wkbPolygon )
 		{
 			OGRPolygon *polygon = (OGRPolygon*) geo;
+			OGRPoint *point = new OGRPoint();
 			object = new CGeoPolygon();
 			((CGeoPolygon *)object)->setType(QString("Polygon"));
+			((CGeoPolygon *)object)->centriod.setX(point->getX());
+			((CGeoPolygon *)object)->centriod.setY(point->getY());
 			OGRLinearRing *ring = polygon->getExteriorRing();
+			ring->Centroid(point);
 			int pointNum = ring->getNumPoints(); // 点个数
 			OGRRawPoint *points = new OGRRawPoint[pointNum];
 			ring->getPoints(points);
@@ -161,6 +180,8 @@ CGeoLayer* GdalTool::readShape(const char* filename){
 				pt.setY(points[i].y);
 				((CGeoPolygon *)object)->addPoint(pt);
 			}
+			geolayer->type = 2;
+
 		}
 		else if(geo != NULL
 			&& wkbFlatten(geo->getGeometryType()) == wkbLineString )
@@ -175,6 +196,8 @@ CGeoLayer* GdalTool::readShape(const char* filename){
 				pt.setY(polyline->getY(i));
 				((CGeoPolyline *)object)->addPoint(pt);
 			}
+			geolayer->type = 1;
+
 		}
 
 		QString str;
@@ -193,10 +216,23 @@ CGeoLayer* GdalTool::readShape(const char* filename){
 		OGREnvelope *envelope2 = new OGREnvelope;
 		geo->getEnvelope(envelope2);
 		object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
-		geolayer->addObjects(object);
+		if(object->getType().compare("Polygon")==0){ // 如果是多边形
+			QPolygonF pts = ((CGeoPolygon *)object)->pts; // 得到多边形所有顶点
+			// 三角剖分
+			QPolygonF result;
+			Triangulate::Process(pts,result);
+			CGeoObject *obj = new CGeoPolygon();
+			((CGeoPolygon *)obj)->pts = result;
+			((CGeoPolygon *)obj)->setType("Polygon");
+			geolayer->addObjects(obj);
+		}else{
+			geolayer->addObjects(object);
+		}
 		OGRFeature::DestroyFeature( poFeature );
 
 	}
 	GDALClose( dataset );
+	MyXMLReader xmlReader;
+	xmlReader.readSLDFile("G:\\finally\\polygon.xml",geolayer);
 	return geolayer;
 }

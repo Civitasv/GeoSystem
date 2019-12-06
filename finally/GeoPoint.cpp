@@ -3,9 +3,6 @@
 
 CGeoPoint::CGeoPoint(void)
 {
-	this->r = 1.0f;
-	this->g = 0.0f;
-	this->b = 0.0f;
 }
 
 
@@ -28,15 +25,15 @@ void CGeoPoint::paint(QPainter *paint){
 
 float* CGeoPoint::getVert(float *vert,int *count){
 	// 重新分配内存
-	vert = (float*)realloc(vert,sizeof(float)* (*count+6));
+	vert = (float*)realloc(vert,sizeof(float)* (*count+3));
 	vert[*count] = pt.x();
 	vert[*count+1] = pt.y();
 	vert[*count+2] = 0.0f;
-	vert[*count+3] = r;
-	vert[*count+4] = g;
-	vert[*count+5] = b;
+	//vert[*count+3] = strokeR;
+	//vert[*count+4] = strokeG;
+	//vert[*count+5] = strokeB;
 	// 设置个数
-	*count = *count+1*6;
+	*count = *count+1*3;
 	return vert;
 }
 

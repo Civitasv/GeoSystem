@@ -27,6 +27,7 @@ public:
         if (Form->objectName().isEmpty())
             Form->setObjectName(QStringLiteral("Form"));
         Form->resize(939, 635);
+        Form->setStyleSheet(QStringLiteral(""));
 
         retranslateUi(Form);
 
@@ -35,7 +36,7 @@ public:
 
     void retranslateUi(QWidget *Form)
     {
-        Form->setWindowTitle(QApplication::translate("Form", "Form", 0));
+        Form->setWindowTitle(QApplication::translate("Form", "Graph", 0));
     } // retranslateUi
 
 };

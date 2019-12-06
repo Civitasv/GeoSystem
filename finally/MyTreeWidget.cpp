@@ -7,10 +7,12 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
 	ui.setupUi(this);
 	//ui.treeWidget->setHeaderHidden(true);
 	this->setHeaderLabel(QString::fromLocal8Bit("图层"));
+	dialog = new Dialog();
 	createActions();
 	createMenu();
 	setContextMenuPolicy(Qt::CustomContextMenu);  //设置枚举值
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),this, SLOT(sltShowPopMenu(const QPoint&)));
+	connect(dialog, SIGNAL(sendColorAndWidthData(QColor ,float )),this, SLOT(getColorAndWidth(QColor ,float )));
 }
 
 
@@ -56,6 +58,8 @@ void MyTreeWidget::createMenu(){
 	connect(act, SIGNAL(triggered(bool)), this, SLOT(viewIt()));
 	QAction* act2 = popMenu->addAction("deleteIt");
 	connect(act2, SIGNAL(triggered(bool)), this, SLOT(deleteIt()));
+	QAction* act3 = popMenu->addAction("properties");
+	connect(act3, SIGNAL(triggered(bool)), this, SLOT(serProp()));
 }
 
 void MyTreeWidget::sltShowPopMenu(const QPoint& pos)//槽函数
@@ -69,6 +73,17 @@ void MyTreeWidget::sltShowPopMenu(const QPoint& pos)//槽函数
 	popMenu->exec(QCursor::pos());
 }
 
+void MyTreeWidget::serProp(){
+	
+	dialog->show();
+}
+
+void MyTreeWidget::getColorAndWidth(QColor color,float width){
+	QModelIndex index = this->currentIndex();
+	int layerID = index.row();
+	emit sendColorAndWidthData(layerID,color,width);
+}
+
 //右键选项的执行函数
 void MyTreeWidget::viewIt()
 {
@@ -76,7 +91,7 @@ void MyTreeWidget::viewIt()
 	int layerID = index.row();
 	int mode = 5;
 	emit updateLayerIDSignal(mode,layerID);
-	
+
 }
 
 //右键选项的执行函数

@@ -53,6 +53,10 @@ public:
         if (MyClassClass->objectName().isEmpty())
             MyClassClass->setObjectName(QStringLiteral("MyClassClass"));
         MyClassClass->resize(889, 644);
+        QIcon icon;
+        icon.addFile(QStringLiteral("address.svg"), QSize(), QIcon::Normal, QIcon::Off);
+        MyClassClass->setWindowIcon(icon);
+        MyClassClass->setStyleSheet(QStringLiteral(""));
         actionGeojson = new QAction(MyClassClass);
         actionGeojson->setObjectName(QStringLiteral("actionGeojson"));
         actionShp = new QAction(MyClassClass);
@@ -125,7 +129,7 @@ public:
 
     void retranslateUi(QMainWindow *MyClassClass)
     {
-        MyClassClass->setWindowTitle(QApplication::translate("MyClassClass", "MyClass", 0));
+        MyClassClass->setWindowTitle(QApplication::translate("MyClassClass", "\344\270\273\347\225\214\351\235\242", 0));
         actionGeojson->setText(QApplication::translate("MyClassClass", "geojson", 0));
         actionShp->setText(QApplication::translate("MyClassClass", "shp", 0));
         actionAbout_us->setText(QApplication::translate("MyClassClass", "about us", 0));

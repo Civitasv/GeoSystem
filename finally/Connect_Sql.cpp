@@ -154,10 +154,10 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 }
 
 // 使用gdal连接得到shp数据
-CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString host,QString user,QString password,QString table){
+CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QString host,QString user,QString password,QString table){
 	// 数据库连接参数
 	OGRRegisterAll();
-	QString filepath = "PG:dbname="+dbname+" host="+host+" user="+user+" password="+password;
+	QString filepath = "PG:dbname="+dbname+" port="+port+" host="+host+" user="+user+" password="+password;
 	OGRDataSource* pDS = NULL;
 	std::string s = table.toStdString();
 	const char* tab = s.c_str();
@@ -180,7 +180,7 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString host,QSt
 	// 要素描述类对象
 	OGRFeatureDefn *poFeaDefn;
 	poFeaDefn = player->GetLayerDefn();
-	geolayer->setLayerName(player->GetName());
+	geolayer->setLayerName(QString::fromLocal8Bit(player->GetName()));
 	OGREnvelope *envelope = new OGREnvelope;
 	player->GetExtent(envelope);
 	geolayer->setRect(QRectF(QPointF(envelope->MinX,envelope->MaxY),QPointF(envelope->MaxX,envelope->MinY)));
@@ -207,6 +207,8 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString host,QSt
 			pt.setX(poPoint->getX());
 			pt.setY(poPoint->getY());
 			((CGeoPoint *)object)->setPoint(pt);
+			geolayer->type = 0;
+
 		}
 		else if(geo != NULL
 			&& strcmp(type, "Polygon")==0)
@@ -224,6 +226,8 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString host,QSt
 				pt.setY(points[i].y);
 				((CGeoPolygon *)object)->addPoint(pt);
 			}
+			geolayer->type = 2;
+
 		}
 		else if(geo != NULL
 			&& strcmp(type, "Polyline")==0 )
@@ -238,6 +242,8 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString host,QSt
 				pt.setY(polyline->getY(i));
 				((CGeoPolyline *)object)->addPoint(pt);
 			}
+			geolayer->type = 1;
+
 		}
 
 		object->setProps(properties);
@@ -245,12 +251,23 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString host,QSt
 		OGREnvelope *envelope2 = new OGREnvelope;
 		geo->getEnvelope(envelope2);
 		object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
-		geolayer->addObjects(object);
-		OGRFeature::DestroyFeature( poFeature );
-
+		if(object->getType().compare("Polygon")==0){ // 如果是多边形
+			QPolygonF pts = ((CGeoPolygon *)object)->pts; // 得到多边形所有顶点
+			// 三角剖分
+			QPolygonF result;
+			Triangulate::Process(pts,result);
+			CGeoObject *obj = new CGeoPolygon();
+			((CGeoPolygon *)obj)->pts = result;
+			((CGeoPolygon *)obj)->setType("Polygon");
+			geolayer->addObjects(obj);
+		}else{
+			geolayer->addObjects(object);
+		}
 	}
 
 	OGRDataSource::DestroyDataSource(pDS);
+	MyXMLReader xmlReader;
+	xmlReader.readSLDFile("G:\\finally\\polygon.xml",geolayer);
 	return geolayer;
 
 }

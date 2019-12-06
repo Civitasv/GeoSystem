@@ -4,7 +4,7 @@
 #include <qopenglfunctions.h>
 #include <qopenglbuffer.h>
 #include <qopenglshaderprogram.h>
-#include <qopenglfunctions_3_3_core.h>
+#include <qopenglfunctions_4_5_core.h>
 #include <QPainter>
 #include "GeoJsonTool.h"
 #include "GeoMap.h"
@@ -16,7 +16,8 @@
 #include "GdalTool.h"
 #include <QWheelEvent>
 #include "Connect_Sql.h"
-class MyGLWidget:public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
+#include <QGraphicsDropShadowEffect>
+class MyGLWidget:public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
 	Q_OBJECT
 public:
@@ -39,10 +40,10 @@ private:
 	//float *vertices;
 	//int *count;
 	int size;
-	QPoint offset;
+	QPointF offset;
 	float scaleParam;
-	QPoint begin;
-	QString dbname, host, user, password, table; // postgresql配置
+	QPointF begin;
+	QString dbname, host, user, password, table,port; // postgresql配置
 	void createShader(const char* vertexPath, const char* fragmentPath);
 	void checkCompileErrors(unsigned int shader, std::string type);
 	void loadData();
@@ -50,7 +51,7 @@ private:
 	void mousePressEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
-
+	QPointF screenToWorld(QPointF screenPoint);
 protected:
 	// 绘制opengl
 	void initializeGL() override;
@@ -58,7 +59,8 @@ protected:
 	void resizeGL(int w,int h) override;
 public slots:
 	void updateMyGLSlot(int mode,const char* filename,int layerID);
-	void updateMyGLPostgresqlSlot(int mode,int layerID,QString dbname,QString host,QString user,QString password,QString table); // 读取数据库，重新渲染
+	void updateMyGLPostgresqlSlot(int mode,int layerID,QString port,QString dbname,QString host,QString user,QString password,QString table); // 读取数据库，重新渲染
 	void updateData(int mode,CGeoMap *map);
 	void updateLayerID(int mode,int LayerID);
+	void getColorAndWidthData2(int layerID,QColor color,float width);//重新渲染信号
 };

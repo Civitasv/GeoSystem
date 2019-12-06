@@ -29,6 +29,9 @@ public:
         if (Form2->objectName().isEmpty())
             Form2->setObjectName(QStringLiteral("Form2"));
         Form2->resize(198, 650);
+        QIcon icon;
+        icon.addFile(QStringLiteral("address.svg"), QSize(), QIcon::Normal, QIcon::Off);
+        Form2->setWindowIcon(icon);
         verticalLayout = new QVBoxLayout(Form2);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
 
@@ -39,7 +42,7 @@ public:
 
     void retranslateUi(QWidget *Form2)
     {
-        Form2->setWindowTitle(QApplication::translate("Form2", "Form", 0));
+        Form2->setWindowTitle(QApplication::translate("Form2", "\347\233\256\345\275\225", 0));
     } // retranslateUi
 
 };

@@ -17,6 +17,7 @@ private:
 	bool isVisible;
 	// ͼ�㷶Χ
 	QRectF qRect;
+
 public:
 	CGeoLayer(void);
 	virtual ~CGeoLayer(void);
@@ -41,6 +42,7 @@ public:
 
 	QRectF getScope();
 	bool paintLoc;
+	int type; // 0:point 1:polyline 2:polygon
 
 };
 

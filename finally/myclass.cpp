@@ -5,18 +5,18 @@ MyClass::MyClass(QWidget *parent)
 {
 	ui.setupUi(this);
 	createActions();
-
 	QString message = tr("A context menu is available by right-clicking");
 	statusBar()->showMessage(message);
 	gl = new MyGLWidget();
-
+	mywizard = new MyWizard();
 	QObject::connect(this,SIGNAL(updateMyGLSignal(int,const char*,int)),gl,SLOT(updateMyGLSlot(int,const char*,int)));
-	QObject::connect(this,SIGNAL(updateMyGLPostgresqlSignal(int,int,QString,QString,QString,QString ,QString )),gl,SLOT(updateMyGLPostgresqlSlot(int,int,QString,QString,QString,QString ,QString)));
+	QObject::connect(this,SIGNAL(updateMyGLPostgresqlSignal(int,int,QString,QString,QString,QString,QString ,QString )),gl,SLOT(updateMyGLPostgresqlSlot(int,int,QString,QString,QString,QString,QString ,QString)));
 	QObject::connect(this,SIGNAL(updateData(int,CGeoMap*)),gl,SLOT(updateData(int,CGeoMap*)));
 	QObject::connect(this,SIGNAL(updateLayerIDSignal(int,int)),gl,SLOT(updateLayerID(int,int)));
-
+	QObject::connect(mywizard,SIGNAL(sendPostgresqlData(QString ,QString ,QString ,QString ,QString ,QString )),this,SLOT(getPostgresqlSlot(QString ,QString ,QString ,QString ,QString ,QString )));
+	QObject::connect(this,SIGNAL(sendColorAndWidthData2(int ,QColor ,float )),gl,SLOT(getColorAndWidthData2(int ,QColor ,float  )));
 	ui.verticalLayout_2->addWidget(gl);
-
+	//this->setWindowIcon(QIcon(":/qss_icons/rc/address.svg"));
 }
 
 MyClass::~MyClass()
@@ -115,6 +115,11 @@ void MyClass::readShape(){
 	}
 }
 
+void MyClass::getColorAndWidthData(int layerID,QColor color,float width){
+	emit sendColorAndWidthData2(layerID,color,width);
+}
+
+
 
 void MyClass::saveShapefile(){
 	QString message = tr("saveShapefile");
@@ -141,17 +146,8 @@ void MyClass::saveShapefile(){
 
 void MyClass::getDatabaseData(){
 	// 向导
-	int layerID = gl->map->geoLayers.size();
-	int mode = 6;
-	QString dbname="test";
-	QString host="127.0.0.1";
-	QString user="postgres";
-	QString password="husen";
-	QString table="bou2_4p";
-	emit updateMyGLPostgresqlSignal(mode,layerID,dbname,host,user,password,table); // 读取数据库，重新渲染
-	emit updateMyTreeWidgetSignal(gl->map);
-	gl->update();
 
+	mywizard->show();
 }
 
 
@@ -163,7 +159,19 @@ void MyClass::createActions(){
 
 
 }
-
+void MyClass::getPostgresqlSlot(QString dbname,QString host,QString user,QString password,QString table,QString port){
+	this->dbname = dbname;
+	this->host = host;
+	this->user = user;
+	this->password = password;
+	this->table = table;
+	this->port = port;
+	int layerID = gl->map->geoLayers.size();
+	int mode = 6;
+	emit updateMyGLPostgresqlSignal(mode,layerID,port,dbname,host,user,password,table); // 读取数据库，重新渲染
+	emit updateMyTreeWidgetSignal(gl->map);
+	gl->update();
+}
 void MyClass::updateTreeGLSlot(int mode,CGeoMap *map){
 	/*
 	MyGLWidget* glTemp = new MyGLWidget();

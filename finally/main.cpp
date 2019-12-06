@@ -2,11 +2,23 @@
 #include <QtWidgets/QApplication>
 #include "MyGLWidget.h"
 #include "MyTreeWidget.h"
-
+#include "dialog.h"
+#include "XColorMaster.h"
 int main(int argc, char *argv[])
 {
-	QApplication a(argc, argv);
-
+	QApplication app(argc, argv);
+	// set stylesheet
+	QFile f(":qdarkstyle/style.qss");
+	if (!f.exists())
+	{
+		printf("Unable to set stylesheet, file not found\n");
+	}
+	else
+	{
+		f.open(QFile::ReadOnly | QFile::Text);
+		QTextStream ts(&f);
+		qApp->setStyleSheet(ts.readAll());
+	}
 	MyClass *w = new MyClass();
 	//MyGLWidget *glWidget=new MyGLWidget();
 	//w.putOpenGLWidget(glWidget);
@@ -21,10 +33,11 @@ int main(int argc, char *argv[])
 	QObject::connect(treeWidget,SIGNAL(updateTreeGLSignal(int,CGeoMap *)),w,SLOT(updateTreeGLSlot(int ,CGeoMap *)),Qt::UniqueConnection);
 	QObject::connect(w,SIGNAL(updateMyTreeWidgetSignal(CGeoMap *)),treeWidget,SLOT(updateMyTreeWidgetSlot(CGeoMap *)),Qt::UniqueConnection);
 	QObject::connect(treeWidget,SIGNAL(updateLayerIDSignal(int,int)),w,SLOT(updateLayerIDSlot(int,int)),Qt::UniqueConnection);
+	QObject::connect(treeWidget,SIGNAL(sendColorAndWidthData(int,QColor,float)),w,SLOT(getColorAndWidthData(int,QColor,float)),Qt::UniqueConnection);
 
 	w->show();
 	treeWidget->show();
 	//MyGLWidget gl;
 	//gl.show();
-	return a.exec();
+	return app.exec();
 }

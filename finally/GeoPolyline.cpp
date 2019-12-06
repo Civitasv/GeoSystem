@@ -26,18 +26,18 @@ void CGeoPolyline::paint(QPainter *paint){
 
 float* CGeoPolyline::getVert(float *vert,int *count){
 	// 重新分配内存
-	vert = (float*)realloc(vert,sizeof(float)* (*count + 6*pts.size()));
+	vert = (float*)realloc(vert,sizeof(float)* (*count + 3*pts.size()));
 
 	for(int i=0;i<pts.size();i++){
-		vert[*count+i*6] = pts[i].x();
-		vert[*count+i*6+1] = pts[i].y();
-		vert[*count+i*6+2] = 0.0f;
-		vert[*count+i*6+3] = r;
-		vert[*count+i*6+4] = g;
-		vert[*count+i*6+5] = b;
+		vert[*count+i*3] = pts[i].x();
+		vert[*count+i*3+1] = pts[i].y();
+		vert[*count+i*3+2] = 0.0f;
+		//vert[*count+i*3+3] = strokeR;
+		//vert[*count+i*3+4] = strokeG;
+		//vert[*count+i*3+5] = strokeB;
 	}
 
-	*count = *count + 6*pts.size();
+	*count = *count + 3*pts.size();
 	return vert;
 }
 

@@ -7,6 +7,10 @@
 #include "prettywriter.h" // for stringify JSON
 #include <cstdio>
 #include "GeoLayer.h"
+#include "ogrsf_frmts.h"
+#include <gdal_priv.h>
+#include "TriangulateUtil.h"
+#include "MyXMLReader.h"
 
 using namespace rapidjson;
 using namespace std;

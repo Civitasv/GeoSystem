@@ -12,6 +12,7 @@
 #include "ogr_geometry.h"
 #include "gdal_priv.h"
 #include "GdalTool.h"
+#include "MyXMLReader.h"
 
 class Connect_Sql
 {
@@ -20,6 +21,6 @@ public:
 	virtual ~Connect_Sql(void);
 	bool ConnectToDB(); // 原生连接
 	bool ConnectToDBSaveShpByGdal(const char* filename); // 使用gdal连接录入shp数据
-	CGeoLayer* ConnectToDBGetShpByGdal(QString dbname,QString host,QString user,QString password,QString table); // 使用gdal连接得到shp数据
+	CGeoLayer* ConnectToDBGetShpByGdal(QString dbname,QString port,QString host,QString user,QString password,QString table); // 使用gdal连接得到shp数据
 };
 

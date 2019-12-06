@@ -16,7 +16,11 @@ private:
 	//  Ù–‘
 	QString properties;
 public:
-	float r,g,b;
+	float fillR,fillG,fillB;
+	float strokeR,strokeG,strokeB;
+	float strokeWidth;
+	float alpha;
+
 	CGeoObject(void);
 	virtual ~CGeoObject(void);
 	void setRect(QRectF rect);

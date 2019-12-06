@@ -5,6 +5,10 @@
 #include <fstream>
 #include "GeoLayer.h"
 #include "GeoMap.h"
+#include "gpc.h"
+#include "TriangulateUtil.h"
+#include "MyXMLReader.h"
+
 class GdalTool
 {
 public:
@@ -16,4 +20,5 @@ public:
 	void getDBF(const char* filename);
 	// ½âÎöshp
 	CGeoLayer* readShape(const char* filename);
+	gpc_vertex BuildVertex(float x, float y);
 };
