@@ -20,11 +20,8 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 
 MyGLWidget::~MyGLWidget(void)
 {
-	if (size!=0){
-		glDeleteVertexArrays(size, VAO);
-		glDeleteBuffers(size, VBO);
-	}
-
+	glDeleteVertexArrays(size, VAO);
+	glDeleteBuffers(size, VBO);
 }
 
 void MyGLWidget::createShader(const char* vertexPath, const char* fragmentPath){
@@ -150,39 +147,52 @@ void MyGLWidget::paintGL(){
 	int count = 0;
 
 	for(int i=0;i<map->geoLayers.size();i++){
-		for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
-			CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
-			if(map->geoLayers[i]->geoObjects[j]->getType().compare("Point")==0){
+		if(map->geoLayers[i]->type==2){
+			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
+				CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
 				// 启动反走样
-				glEnable(GL_BLEND);
-				glEnable(GL_POINT_SMOOTH);
-				glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-				glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->alpha);
-				glBindVertexArray(VAO[count]);
-				glDrawArrays(GL_POINTS, 0, len[count]);
-			}else if(map->geoLayers[i]->geoObjects[j]->getType().compare("Polyline")==0){
-				//启用反走样
-				glEnable(GL_BLEND);
-				glEnable(GL_LINE_SMOOTH);
-				glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-				glUniform4f(colorLoc, obj->strokeR, obj->strokeG, obj->strokeB, obj->alpha);
-				// 线宽
-				glLineWidth(map->geoLayers[i]->geoObjects[j]->strokeWidth); 
-				glBindVertexArray(VAO[count]);
-				glDrawArrays(GL_LINE_STRIP, 0, len[count]);
-			}else if(map->geoLayers[i]->geoObjects[j]->getType().compare("Polygon")==0){
-				// 启动反走样
+				/*
 				glEnable(GL_BLEND);
 				glEnable(GL_POLYGON_SMOOTH);
 				glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+				*/
 				glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->alpha);
 				glBindVertexArray(VAO[count]);
 				glDrawArrays(GL_TRIANGLES, 0, len[count]);
+				count++;
 			}
+		}
+		else if(map->geoLayers[i]->type==0 ){
+			CGeoObject *obj = map->geoLayers[i]->geoObjects[0];
+			// 启动反走样
+			/*
+			glEnable(GL_BLEND);
+			glEnable(GL_POINT_SMOOTH);
+			glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+			*/
+			glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->alpha);
+			glBindVertexArray(VAO[count]);
+			glDrawArrays(GL_POINTS, 0, len[count]);
 			count++;
+		}
+		else if(map->geoLayers[i]->type==1 ){
+			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
+				CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
+				//启用反走样
+				/*glEnable(GL_BLEND);
+				glEnable(GL_LINE_SMOOTH);
+				glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+				*/
+				glUniform4f(colorLoc, obj->strokeR, obj->strokeG, obj->strokeB, obj->alpha);
+				// 线宽
+				glLineWidth(obj->strokeWidth); 
+				glBindVertexArray(VAO[count]);
+				glDrawArrays(GL_LINE_STRIP, 0, len[count]);
+				count++;
+			}
 		}
 
 	}
@@ -247,9 +257,19 @@ void MyGLWidget::loadData(){
 	}
 	size = 0;
 	for(int i=0;i<map->geoLayers.size();i++){
-		if(map->geoLayers[i]->getVisible())
-			// 对每一个object生成一个VBO和VAO对象
-				size += map->geoLayers[i]->geoObjects.size();
+		if(map->geoLayers[i]->getVisible() && (map->geoLayers[i]->type==2 || map->geoLayers[i]->type==1)){ // 可见且为POLYGON
+			// 对每一个POLYGON LAYER的每一个object生成一个VBO和VAO对象
+			size += map->geoLayers[i]->geoObjects.size();
+		}
+		else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==0){ // 可见且为POINT
+			// 对每一个POINT LAYER仅生成一个VBO和VAO对象
+			size += 1;
+		}
+		/*else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==1){ // 可见且为POLYLINE
+		// 对每一个POLYINE LAYER仅生成一个VBO和VAO对象
+		size += 1;
+		}
+		*/
 	}
 	qDebug()<<size;
 	// 重新分配内存
@@ -261,7 +281,7 @@ void MyGLWidget::loadData(){
 	int num = 0;
 	for(int j=0;j<map->geoLayers.size();j++){
 		CGeoLayer *temp = map->geoLayers[j];
-		if(temp->getVisible()){
+		if(temp->getVisible() && (temp->type==2 || temp->type==1)){
 			for(int i=0;i<temp->geoObjects.size();i++){
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
 				float *vertices =  (float *) malloc(16);
@@ -288,6 +308,33 @@ void MyGLWidget::loadData(){
 				delete count;
 				num++;
 			}
+		}
+
+		else if(temp->getVisible() && temp->type==0){
+			// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
+			float *vertices =  new float();
+			int *count = new int();
+			*count = 0; // 初始值为零
+			vertices = temp->getVert(vertices,count);
+			len[num] = *count/3;
+			// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+			glBindVertexArray(VAO[num]);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
+			glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+			// color attribute
+			//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+			//glEnableVertexAttribArray(1);
+			// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+			glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+			// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+			// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+			glBindVertexArray(0);
+			delete[] vertices;
+			delete count;
+			num++;
 		}
 	}
 }

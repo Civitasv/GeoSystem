@@ -94,7 +94,7 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 			{
 				return false;
 			}
-			delete point;
+			//delete point;
 			OGRFeature::DestroyFeature(pfeature);
 		}
 		else if(strcmp(str2.c_str(),"Polygon")==0){
@@ -145,7 +145,7 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 			{
 				return false;
 			}
-			delete polyline;
+			//delete polyline;
 			OGRFeature::DestroyFeature(pfeature);
 		}
 	}

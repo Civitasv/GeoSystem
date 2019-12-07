@@ -879,5 +879,6 @@
     <None Include="C:\Users\dellyx\Downloads\address.svg">
       <Filter>rc</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

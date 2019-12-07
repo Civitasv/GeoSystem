@@ -333,6 +333,7 @@
     </CustomBuild>
     <None Include="C:\Users\dellyx\Downloads\address.svg" />
     <None Include="C:\Users\dellyx\Downloads\QDarkStyleSheet-master\qdarkstyle\style.qss" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\dellyx\Downloads\QDarkStyleSheet-master\qdarkstyle\rc\arrow_down%402x.png" />
