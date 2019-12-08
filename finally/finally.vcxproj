@@ -111,6 +111,7 @@
     <ClCompile Include="GeoPolygon.cpp" />
     <ClCompile Include="GeoPolyline.cpp" />
     <ClCompile Include="gpc.cpp" />
+    <ClCompile Include="GPCUtil.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="myclass.cpp" />
     <ClCompile Include="MyGLWidget.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="GeoPoint.h" />
     <ClInclude Include="GeoPolygon.h" />
     <ClInclude Include="GeoPolyline.h" />
+    <ClInclude Include="GPCUtil.h" />
     <ClInclude Include="MyXMLReader.h" />
     <ClInclude Include="TriangulateUtil.h" />
     <CustomBuild Include="XGradientSlider.h">

@@ -8,7 +8,7 @@
 #include "gpc.h"
 #include "TriangulateUtil.h"
 #include "MyXMLReader.h"
-
+#include "GPCUtil.h"
 class GdalTool
 {
 public:

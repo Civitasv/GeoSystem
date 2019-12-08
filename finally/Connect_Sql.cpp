@@ -180,7 +180,7 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 	// 要素描述类对象
 	OGRFeatureDefn *poFeaDefn;
 	poFeaDefn = player->GetLayerDefn();
-	geolayer->setLayerName(QString::fromLocal8Bit(player->GetName()));
+	geolayer->setLayerName(player->GetName());
 	OGREnvelope *envelope = new OGREnvelope;
 	player->GetExtent(envelope);
 	geolayer->setRect(QRectF(QPointF(envelope->MinX,envelope->MaxY),QPointF(envelope->MaxX,envelope->MinY)));
@@ -252,13 +252,27 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 		geo->getEnvelope(envelope2);
 		object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
 		if(object->getType().compare("Polygon")==0){ // 如果是多边形
-			QPolygonF pts = ((CGeoPolygon *)object)->pts; // 得到多边形所有顶点
+			/*QPolygonF pts = ((CGeoPolygon *)object)->pts; // 得到多边形所有顶点
 			// 三角剖分
 			QPolygonF result;
 			Triangulate::Process(pts,result);
 			CGeoObject *obj = new CGeoPolygon();
 			((CGeoPolygon *)obj)->pts = result;
 			((CGeoPolygon *)obj)->setType("Polygon");
+			geolayer->addObjects(obj);*/
+			gpc_tristrip* tristrip = new gpc_tristrip();
+			Triangle((CGeoPolygon*)object,tristrip);
+			CGeoObject *obj = new CGeoPolygon();
+			((CGeoPolygon *)obj)->setType("Polygon");
+			for (int i=0; i<tristrip->num_strips; i++)
+			{
+				for (int j=0; j<tristrip->strip[i].num_vertices; j++)
+				{
+					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j].x,tristrip->strip[i].vertex[j].y));
+					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j+1].x,tristrip->strip[i].vertex[j+1].y));
+					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j+2].x,tristrip->strip[i].vertex[j+2].y));
+				}
+			}
 			geolayer->addObjects(obj);
 		}else{
 			geolayer->addObjects(object);

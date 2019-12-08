@@ -13,7 +13,7 @@
 #include "gdal_priv.h"
 #include "GdalTool.h"
 #include "MyXMLReader.h"
-
+#include "GPCUtil.h"
 class Connect_Sql
 {
 public:

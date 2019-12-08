@@ -11,7 +11,7 @@
 #include <gdal_priv.h>
 #include "TriangulateUtil.h"
 #include "MyXMLReader.h"
-
+#include "GPCUtil.h"
 using namespace rapidjson;
 using namespace std;
 class GeoJsonTool

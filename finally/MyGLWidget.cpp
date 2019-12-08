@@ -109,6 +109,13 @@ void MyGLWidget::paintGL(){
 	if(size==0){
 		return;
 	}
+	if(mode==0 || mode==1||mode==3||mode==4||mode==5||mode==6){
+		if(viewLayer->getRect().width()!=0){
+			rect = viewLayer->getRect();
+		}else{
+			rect = viewLayer->getScope();
+		}
+	}
 	QMatrix4x4 model;
 	QMatrix4x4 view;
 	QMatrix4x4 ortho;
@@ -147,45 +154,41 @@ void MyGLWidget::paintGL(){
 	int count = 0;
 
 	for(int i=0;i<map->geoLayers.size();i++){
-		if(map->geoLayers[i]->type==2){
+		if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==2){
 			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
 				CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
 				// Æô¶¯·´×ßÑù
-				/*
 				glEnable(GL_BLEND);
 				glEnable(GL_POLYGON_SMOOTH);
 				glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-				*/
 				glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->alpha);
 				glBindVertexArray(VAO[count]);
 				glDrawArrays(GL_TRIANGLES, 0, len[count]);
 				count++;
 			}
 		}
-		else if(map->geoLayers[i]->type==0 ){
+		else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==0 ){
 			CGeoObject *obj = map->geoLayers[i]->geoObjects[0];
 			// Æô¶¯·´×ßÑù
-			/*
 			glEnable(GL_BLEND);
 			glEnable(GL_POINT_SMOOTH);
 			glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-			*/
 			glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->alpha);
+			glPointSize(obj->strokeWidth);
 			glBindVertexArray(VAO[count]);
 			glDrawArrays(GL_POINTS, 0, len[count]);
 			count++;
 		}
-		else if(map->geoLayers[i]->type==1 ){
+		else if(map->geoLayers[i]->getVisible()&&map->geoLayers[i]->type==1 ){
 			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
 				CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
 				//ÆôÓÃ·´×ßÑù
-				/*glEnable(GL_BLEND);
+				glEnable(GL_BLEND);
 				glEnable(GL_LINE_SMOOTH);
 				glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-				*/
 				glUniform4f(colorLoc, obj->strokeR, obj->strokeG, obj->strokeB, obj->alpha);
 				// Ïß¿í
 				glLineWidth(obj->strokeWidth); 
@@ -248,13 +251,7 @@ void MyGLWidget::readDataFromPostgresql(){
 
 
 void MyGLWidget::loadData(){
-	if(mode==0 || mode==1||mode==3||mode==4||mode==5||mode==6){
-		if(viewLayer->getRect().width()!=0){
-			rect = viewLayer->getRect();
-		}else{
-			rect = viewLayer->getScope();
-		}
-	}
+	
 	size = 0;
 	for(int i=0;i<map->geoLayers.size();i++){
 		if(map->geoLayers[i]->getVisible() && (map->geoLayers[i]->type==2 || map->geoLayers[i]->type==1)){ // ¿É¼ûÇÒÎªPOLYGON
@@ -352,11 +349,13 @@ void MyGLWidget::getColorAndWidthData2(int layerID,QColor color,float width){//Ö
 	CGeoLayer *layer = map->geoLayers[layerID];
 	for(int i=0;i<layer->geoObjects.size();i++){
 		CGeoObject *obj =layer->geoObjects[i];
-		if(obj->getType().compare("point")==0 || obj->getType().compare("Polygon")==0){
+		if(obj->getType().compare("Point")==0 || obj->getType().compare("Polygon")==0){
 			obj->fillR = color.redF();
 			obj->fillG = color.greenF();
 			obj->fillB = color.blueF();
 			obj->alpha = color.alphaF();
+			obj->strokeWidth = width;
+
 		}
 		else if(obj->getType().compare("Polyline")==0){
 			obj->strokeR = color.redF();
@@ -402,7 +401,7 @@ void MyGLWidget::updateLayerID(int mode,int layerID){
 	offset.setY(0);
 	scaleParam = 0;
 	makeCurrent();
-	initializeGL();
+	//initializeGL();
 	update();
 }
 
@@ -413,10 +412,10 @@ void MyGLWidget::wheelEvent(QWheelEvent *event){
 	QRect tmp=this->geometry();
 	if(event->delta()>0){//Èç¹û¹öÂÖÍùÉÏ¹ö
 		// ·Å´ó
-		scaleParam += (event->delta()/(15*8))*0.1;
+		scaleParam += (event->delta()/(15*8))*0.8;
 	}else{
 		// Ëõ·Å
-		scaleParam -= -event->delta()/(15*8)*0.1;
+		scaleParam -= -event->delta()/(15*8)*0.8;
 	}
 	if(scaleParam<=-1){
 		scaleParam = -0.9;
@@ -443,7 +442,7 @@ void MyGLWidget::mouseReleaseEvent(QMouseEvent* event){
 void MyGLWidget::mouseMoveEvent(QMouseEvent* event){
 	if(event->buttons() & Qt::LeftButton){//ÓëÔËËã
 		QPointF temp;
-		temp = event->globalPos() -begin;//
+		temp = event->globalPos() -pos() -begin;//
 		offset.setX(offset.x()+screenToWorld(temp).x());
 		offset.setY(offset.y()-screenToWorld(temp).y());
 
@@ -462,8 +461,8 @@ QPointF MyGLWidget::screenToWorld(QPointF screenPoint){
 	double x = screenPoint.x() * 1.0;
 	double y = screenPoint.y() * 1.0;
 
-	p.setX(x / w * rect.width()/10);
-	p.setY(y/h * rect.height()/10);
+	p.setX(x / w * rect.width()/(10*(1+scaleParam)));
+	p.setY(y/h * rect.height()/(10*(1+scaleParam)));
 
 	return p;
 
