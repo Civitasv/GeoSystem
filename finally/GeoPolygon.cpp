@@ -1,5 +1,5 @@
 #include "GeoPolygon.h"
-
+#include <qdebug.h>
 
 CGeoPolygon::CGeoPolygon(void)
 {

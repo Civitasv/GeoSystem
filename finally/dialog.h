@@ -20,7 +20,8 @@ public:
 	{
 		H,S,V,R,G,B
 	}checkedColor;
-	XColorMaster *sc;
+	XColorMaster *fillColorXM;
+	XColorMaster *strokeColorXM;
 private:
 	Ui::Form7 ui;
 
@@ -28,7 +29,7 @@ private:
 		void continueClick();
 		void cancelClick();
 signals:
-		void sendColorAndWidthData(QColor color,float width);//重新渲染信号
+		void sendColorAndWidthData(QColor fillColor,QColor strokeColor,float width);//重新渲染信号
 };
 
 #endif // DIALOG_H

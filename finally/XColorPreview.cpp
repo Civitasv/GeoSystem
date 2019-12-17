@@ -9,7 +9,7 @@ XColorPreview::XColorPreview(QWidget *parent) :
     QWidget(parent), col(Qt::red), back( Qt::darkGray, Qt::DiagCrossPattern ),
     alpha_mode(NoAlpha), colorPrevious(Qt::blue)
 {
-    back.setTexture(QPixmap(QString(":/images/alphaback.png")));
+    //back.setTexture(QPixmap(QString(":/images/alphaback.png")));
 }
 
 QSize XColorPreview::sizeHint() const

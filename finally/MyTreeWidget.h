@@ -6,6 +6,7 @@
 #include <QContextMenuEvent>
 #include <qmenu.h>
 #include "dialog.h"
+#include "AttributeTable.h"
 class MyTreeWidget:public QTreeWidget
 {
 	Q_OBJECT
@@ -18,8 +19,11 @@ private:
 	Ui::Form2 ui;
 	CGeoMap *map;
 	Dialog *dialog;
+	AttributeTable *attri;
 	void createActions();
 	void createMenu();
+	int loc,deletesize;
+
 	//void contextMenuEvent ( QContextMenuEvent * event );
 	private slots:
 		void updateMyTreeWidgetSlot(CGeoMap *map);
@@ -28,11 +32,16 @@ private:
 		void deleteIt();
 		void sltShowPopMenu(const QPoint&);
 		void serProp();
-		void getColorAndWidth(QColor color,float width);
+		void openAttri();
+		void getColorAndWidth(QColor fillColor,QColor strokeColor,float width);
+		void showIndexGrids();
+		void hideIndexGrids();
 signals:
-		void updateTreeGLSignal(int mode,CGeoMap *map);
+		void updateTreeGLSignal(int mode,CGeoMap *map,int layerID,int size);
 		void updateLayerIDSignal(int mode,int layerID);
 		void updateColorAndWidth(float r,float g,float b,double width);
-		void sendColorAndWidthData(int index,QColor color,float width);//重新渲染信号
+		void sendColorAndWidthData(int index,QColor fillColor,QColor strokeColor,float width);//重新渲染信号
+		void showAttri(CGeoLayer* layer);
+		void IndexGrids();
 };
 

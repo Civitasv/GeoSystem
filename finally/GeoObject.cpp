@@ -24,10 +24,10 @@ QString CGeoObject::getType(){
 	return this->type;
 }
 
-QString CGeoObject::getProps(){
+QMap<QString,QString> CGeoObject::getProps(){
 	return this->properties;
 }
-void CGeoObject::setProps(QString props){
+void CGeoObject::setProps(QMap<QString,QString> props){
 	this->properties = props;
 }
 

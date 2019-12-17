@@ -11,7 +11,6 @@ public:
 	virtual ~CGeoPolygon(void);
 	QPolygonF pts;
 	void addPoint(QPointF pt);
-	QPointF centriod;
 	void paint(QPainter *paint);
 	float* getVert(float *vert,int *count);
 	QRectF getScope();

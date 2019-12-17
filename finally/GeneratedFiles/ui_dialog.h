@@ -28,7 +28,6 @@ class Ui_Form7
 public:
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout_3;
-    QHBoxLayout *horizontalLayout_5;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_2;
     QLineEdit *lineEdit;
@@ -49,11 +48,6 @@ public:
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(30, -1, 30, -1);
-        horizontalLayout_5 = new QHBoxLayout();
-        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
-
-        horizontalLayout_3->addLayout(horizontalLayout_5);
-
 
         verticalLayout->addLayout(horizontalLayout_3);
 

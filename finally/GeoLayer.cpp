@@ -1,15 +1,18 @@
-#include "GeoLayer.h"
+﻿#include "GeoLayer.h"
 
 
 CGeoLayer::CGeoLayer(void)
 {
 	paintLoc = false;
+	showIndexGrid = false;
+	tree = new QuadTree();
 }
 
 
 CGeoLayer::~CGeoLayer(void)
 {
 	geoObjects.clear();
+	ReleaseQuadTree(&tree->root);
 }
 
 void CGeoLayer::setRect(QRectF qRect){
@@ -64,10 +67,10 @@ QRectF CGeoLayer::getScope(){
 		if(rect.width()==0){
 			rect = r;
 		}
-		if(r.top()>maxy){
+		if(r.top()>maxy&&r.top()<1e10){
 			maxy = r.top();
 		}
-		if(r.right()>maxx){
+		if(r.right()>maxx&&r.right()<1e10){
 			maxx = r.right();
 		}
 		if(r.left()<minx){
@@ -77,8 +80,23 @@ QRectF CGeoLayer::getScope(){
 			miny = r.bottom();
 		}
 		rect=QRectF(QPointF(minx,maxy),QPointF(maxx,miny));
-		
+
 	}
 	this->qRect = rect;
 	return rect;
+}
+
+void CGeoLayer::setPropsKey(){
+	if(geoObjects.size()>0){
+		QMap<QString,QString> properties = geoObjects[0]->getProps();
+		QMapIterator<QString, QString> i(properties);
+		while (i.hasNext()) {
+			i.next();
+			propsKey.append(i.key());
+		}
+	}
+}
+
+QList<QString> CGeoLayer::getPropsKey(){
+	return this->propsKey;
 }

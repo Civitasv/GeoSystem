@@ -14,4 +14,5 @@ public:
 	void paint(QPainter *paint);
 	float* getVert(float *vert,int *count);
 	QRectF getScope();
+	QPolygonF pts;// Õ‚Ω”
 };

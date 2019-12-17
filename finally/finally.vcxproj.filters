@@ -136,11 +136,29 @@
     <ClCompile Include="GeneratedFiles\debug\moc_XColorPreview.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="GPCUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_style.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="GPCUtil.cpp">
+    <ClCompile Include="AttributeTable.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\debug\moc_AttributeTable.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QUADTREE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpatialIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SeekEleAttri.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\debug\moc_SeekEleAttri.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +213,18 @@
     <CustomBuild Include="C:\Users\dellyx\Downloads\QDarkStyleSheet-master\qdarkstyle\style.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="AttributeTable.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="AttributeTable.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SeekEleAttri.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SeekEleAttri.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Connect_Sql.h">
@@ -247,6 +277,18 @@
     </ClInclude>
     <ClInclude Include="GPCUtil.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_AttributeTable.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QUADTREE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SeekEleAttri.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -886,5 +928,8 @@
       <Filter>rc</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="..\search.svg">
+      <Filter>rc</Filter>
+    </None>
   </ItemGroup>
 </Project>

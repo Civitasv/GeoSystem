@@ -127,22 +127,26 @@ CGeoLayer* GeoJsonTool::readGeoJSON(const char* filename){
 			pt.setX(poPoint->getX());
 			pt.setY(poPoint->getY());
 			((CGeoPoint *)object)->setPoint(pt);
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()-0.001*pt.x(),pt.y()+0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()-0.001*pt.x(),pt.y()-0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()+0.001*pt.x(),pt.y()-0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()+0.001*pt.x(),pt.y()+0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()-0.001*pt.x(),pt.y()+0.001*pt.y()));
+
 			geolayer->type = 0;
+
 		}
 		else if(geo != NULL
 			&& wkbFlatten(geo->getGeometryType()) == wkbPolygon )
 		{
 			OGRPolygon *polygon = (OGRPolygon*) geo;
-			OGRPoint *point = new OGRPoint();
-			geo->Centroid(point);
 			object = new CGeoPolygon();
 			((CGeoPolygon *)object)->setType(QString("Polygon"));
-			((CGeoPolygon *)object)->centriod.setX(point->getX());
-			((CGeoPolygon *)object)->centriod.setY(point->getY());
 			OGRLinearRing *ring = polygon->getExteriorRing();
 			int pointNum = ring->getNumPoints(); // 点个数
 			OGRRawPoint *points = new OGRRawPoint[pointNum];
 			ring->getPoints(points);
+
 			for(int i=0;i<pointNum;i++){
 				QPointF pt;
 				pt.setX(points[i].x);
@@ -150,6 +154,7 @@ CGeoLayer* GeoJsonTool::readGeoJSON(const char* filename){
 				((CGeoPolygon *)object)->addPoint(pt);
 			}
 			geolayer->type = 2;
+
 		}
 		else if(geo != NULL
 			&& wkbFlatten(geo->getGeometryType()) == wkbLineString )
@@ -158,6 +163,7 @@ CGeoLayer* GeoJsonTool::readGeoJSON(const char* filename){
 			object = new CGeoPolyline();
 			((CGeoPolyline *)object)->setType(QString("Polyline"));
 			int pointNum = polyline->getNumPoints(); // 点个数
+
 			for(int i=0;i<pointNum;i++){
 				QPointF pt;
 				pt.setX(polyline->getX(i));
@@ -165,55 +171,34 @@ CGeoLayer* GeoJsonTool::readGeoJSON(const char* filename){
 				((CGeoPolyline *)object)->addPoint(pt);
 			}
 			geolayer->type = 1;
+
+		}else{
+			QMessageBox::critical(NULL, QString::fromLocal8Bit("不支持的类型"), QString::fromLocal8Bit("该要素图层不为点、线、面格式，暂不支持!"), QMessageBox::Yes, QMessageBox::Yes);  
+			return nullptr;
 		}
 
-		QString str;
+		QMap<QString,QString> str;
 		// 设置属性
 		for(int iField = 0; iField <n; iField++ )
 		{
-			// 得到列名
-			str+=poFeaDefn->GetFieldDefn(iField)->GetNameRef();
-			str+=":";
-			//输出每个字段的值
-			str+=poFeature->GetFieldAsString(iField);
-			str+=";";
+			str.insert(QString::fromLocal8Bit(poFeaDefn->GetFieldDefn(iField)->GetNameRef()),QString::fromLocal8Bit(poFeature->GetFieldAsString(iField)));
 		}
 		object->setProps(str);
-		// 设置范围
-		OGREnvelope *envelope2 = new OGREnvelope;
-		geo->getEnvelope(envelope2);
-		object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
-		if(object->getType().compare("Polygon")==0){ // 如果是多边形
-			/*QPolygonF pts = ((CGeoPolygon *)object)->pts; // 得到多边形所有顶点
-			// 三角剖分
-			QPolygonF result;
-			Triangulate::Process(pts,result);
-			CGeoObject *obj = new CGeoPolygon();
-			((CGeoPolygon *)obj)->pts = result;
-			((CGeoPolygon *)obj)->setType("Polygon");
-			geolayer->addObjects(obj);*/
-			gpc_tristrip* tristrip = new gpc_tristrip();
-			Triangle((CGeoPolygon*)object,tristrip);
-			CGeoObject *obj = new CGeoPolygon();
-			((CGeoPolygon *)obj)->setType("Polygon");
-			for (int i=0; i<tristrip->num_strips; i++)
-			{
-				for (int j=0; j<tristrip->strip[i].num_vertices; j++)
-				{
-					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j].x,tristrip->strip[i].vertex[j].y));
-					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j+1].x,tristrip->strip[i].vertex[j+1].y));
-					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j+2].x,tristrip->strip[i].vertex[j+2].y));
-				}
-			}
-			geolayer->addObjects(obj);
-		}else{
-			geolayer->addObjects(object);
+		if(object->getType().compare("Point")!=0){
+			// 设置范围
+			OGREnvelope *envelope2 = new OGREnvelope;
+			geo->getEnvelope(envelope2);
+			object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
+			object->centriod = object->getRect().center();
 		}
+		geolayer->addObjects(object);
 		OGRFeature::DestroyFeature( poFeature );
 
 	}
 	GDALClose( dataset );
 	MyXMLReader xmlReader;
 	xmlReader.readSLDFile("G:\\finally\\polygon.xml",geolayer);
+	geolayer->setPropsKey();
+	makeIndex(geolayer);
 	return geolayer;
 }

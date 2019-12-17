@@ -12,6 +12,7 @@
 #include "TriangulateUtil.h"
 #include "MyXMLReader.h"
 #include "GPCUtil.h"
+#include "SpatialIndex.h"
 using namespace rapidjson;
 using namespace std;
 class GeoJsonTool

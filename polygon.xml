@@ -21,10 +21,10 @@
           <Abstract>A polygon with a gray fill and a 1 pixel black outline</Abstract>
           <PolygonSymbolizer>
             <Fill>
-              <CssParameter name="fill">#17a81a</CssParameter>
+              <CssParameter name="fill">#8e2121</CssParameter>
             </Fill>
             <Stroke>
-              <CssParameter name="stroke">#17a81a</CssParameter>
+              <CssParameter name="stroke">#ca590a</CssParameter>
               <CssParameter name="stroke-width">1.5</CssParameter>
             </Stroke>
           </PolygonSymbolizer>

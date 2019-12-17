@@ -6,8 +6,9 @@
 #include "geopolyline.h"
 #include "geopolygon.h"
 #include "geoobject.h"
+#include "QUADTREE.h"
 #define FLT_MAX         3.402823466e+38F
-
+typedef struct quadtree_t QuadTree;
 class CGeoLayer
 {
 private:
@@ -17,7 +18,8 @@ private:
 	bool isVisible;
 	// Õº≤„∑∂Œß
 	QRectF qRect;
-
+	//  Ù–‘±ÌÕ∑
+	QList<QString> propsKey;
 public:
 	CGeoLayer(void);
 	virtual ~CGeoLayer(void);
@@ -25,13 +27,15 @@ public:
 	QList<CGeoObject*> geoObjects;
 	void setRect(QRectF qRect);
 	QRectF getRect();
-
+	bool showIndexGrid;
 	void setLayerName(QString layerName);
 	QString getLayerName();
 
 	void setVisible(bool isVisible);
 	bool getVisible();
 
+	void setPropsKey();
+	QList<QString> getPropsKey();
 	void addObjects(CGeoObject* obj);
 	void deleteObjectAt(int index);
 	void deleteObjectAll();
@@ -43,6 +47,7 @@ public:
 	QRectF getScope();
 	bool paintLoc;
 	int type; // 0:point 1:polyline 2:polygon
+	QuadTree* tree;
 
 };
 

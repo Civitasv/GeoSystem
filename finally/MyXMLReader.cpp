@@ -292,14 +292,14 @@ void hexToRgb(int mode,QString hex,CGeoLayer *layer) {
 			layer->geoObjects[i]->fillR = r/255;
 			layer->geoObjects[i]->fillG = g/255;
 			layer->geoObjects[i]->fillB = b/255;
-			layer->geoObjects[i]->alpha = 1.0;
+			layer->geoObjects[i]->fillAlpha = 1.0;
 		}
 	}else if(mode==1){
 		for(int i=0;i<layer->geoObjects.size();i++){
 			layer->geoObjects[i]->strokeR = r/255;
 			layer->geoObjects[i]->strokeG = g/255;
 			layer->geoObjects[i]->strokeB = b/255;
-			layer->geoObjects[i]->alpha = 1.0;
+			layer->geoObjects[i]->strokeAlpha = 1.0;
 
 		}
 	}

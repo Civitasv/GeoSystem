@@ -17,9 +17,26 @@ Dialog::Dialog(QWidget *parent) :
 
 	//    XColorDialog *dialog = new XColorDialog(this);
 
-	sc = new XColorMaster(this);
-	ui.horizontalLayout_5->addWidget(sc);
+	fillColorXM = new XColorMaster(this);
+	QLabel *label= new QLabel("fillcolor:");
+	QFont font;
+	font.setFamily(QStringLiteral("Arial Narrow:"));
+	font.setPointSize(9);
+	font.setBold(true);
+	font.setWeight(75);
+	label->setFont(font);
+	label->setTextFormat(Qt::AutoText);
+	label->setAlignment(Qt::AlignCenter);
+	ui.horizontalLayout_3->addWidget(label);
+	ui.horizontalLayout_3->addWidget(fillColorXM);
 
+	strokeColorXM = new XColorMaster(this);
+	QLabel *label2= new QLabel("strokeColor:");
+	label2->setFont(font);
+	label2->setTextFormat(Qt::AutoText);
+	label2->setAlignment(Qt::AlignCenter);
+	ui.horizontalLayout_3->addWidget(label2);
+	ui.horizontalLayout_3->addWidget(strokeColorXM);
 	//    XGradientSlider *slider = new XGradientSlider(this);
 	//    slider->setFirstColor(Qt::red);
 	//    slider->setLastColor(Qt::green);
@@ -35,13 +52,13 @@ Dialog::Dialog(QWidget *parent) :
 
 Dialog::~Dialog()
 {
-	
+
 }
 
 void Dialog::continueClick(){
 	bool ok;
 	float width = ui.lineEdit->displayText().toFloat(&ok);
-	emit sendColorAndWidthData(sc->color,width);
+	emit sendColorAndWidthData(fillColorXM->color,strokeColorXM->color,width);
 	this->close();
 }
 

@@ -9,6 +9,8 @@
 #include "TriangulateUtil.h"
 #include "MyXMLReader.h"
 #include "GPCUtil.h"
+#include "SpatialIndex.h"
+
 class GdalTool
 {
 public:
@@ -21,4 +23,5 @@ public:
 	// ½âÎöshp
 	CGeoLayer* readShape(const char* filename);
 	gpc_vertex BuildVertex(float x, float y);
+	CGeoLayer* readShapeWithoutTriangle(const char* filename);
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>889</width>
-    <height>644</height>
+    <width>816</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,10 +20,80 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
+  <property name="iconSize">
+   <size>
+    <width>30</width>
+    <height>30</height>
+   </size>
+  </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,13">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2"/>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="lineEdit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../search.svg</normaloff>../search.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../close.svg</normaloff>../close.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
     </item>
    </layout>
   </widget>
@@ -32,7 +102,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>889</width>
+     <width>816</width>
      <height>26</height>
     </rect>
    </property>
@@ -82,7 +152,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -105,6 +174,7 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionGeojson">
    <property name="text">
     <string>geojson</string>
@@ -135,10 +205,41 @@
     <string>get databaseData</string>
    </property>
   </action>
+  <action name="actionIndex_grid">
+   <property name="text">
+    <string>showIndexGrid</string>
+   </property>
+  </action>
+  <action name="actionHideIndexGrid">
+   <property name="text">
+    <string>hideIndexGrid</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="myclass.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MyClassClass</receiver>
+   <slot>search()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>209</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>208</x>
+     <y>102</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>search()</slot>
+  <slot>restore2()</slot>
+ </slots>
 </ui>

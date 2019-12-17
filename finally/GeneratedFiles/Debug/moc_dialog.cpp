@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Dialog_t {
-    QByteArrayData data[7];
-    char stringdata0[68];
+    QByteArrayData data[8];
+    char stringdata0[84];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,14 +32,16 @@ static const qt_meta_stringdata_Dialog_t qt_meta_stringdata_Dialog = {
 QT_MOC_LITERAL(0, 0, 6), // "Dialog"
 QT_MOC_LITERAL(1, 7, 21), // "sendColorAndWidthData"
 QT_MOC_LITERAL(2, 29, 0), // ""
-QT_MOC_LITERAL(3, 30, 5), // "color"
-QT_MOC_LITERAL(4, 36, 5), // "width"
-QT_MOC_LITERAL(5, 42, 13), // "continueClick"
-QT_MOC_LITERAL(6, 56, 11) // "cancelClick"
+QT_MOC_LITERAL(3, 30, 9), // "fillColor"
+QT_MOC_LITERAL(4, 40, 11), // "strokeColor"
+QT_MOC_LITERAL(5, 52, 5), // "width"
+QT_MOC_LITERAL(6, 58, 13), // "continueClick"
+QT_MOC_LITERAL(7, 72, 11) // "cancelClick"
 
     },
-    "Dialog\0sendColorAndWidthData\0\0color\0"
-    "width\0continueClick\0cancelClick"
+    "Dialog\0sendColorAndWidthData\0\0fillColor\0"
+    "strokeColor\0width\0continueClick\0"
+    "cancelClick"
 };
 #undef QT_MOC_LITERAL
 
@@ -57,14 +59,14 @@ static const uint qt_meta_data_Dialog[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,   29,    2, 0x06 /* Public */,
+       1,    3,   29,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       5,    0,   34,    2, 0x08 /* Private */,
-       6,    0,   35,    2, 0x08 /* Private */,
+       6,    0,   36,    2, 0x08 /* Private */,
+       7,    0,   37,    2, 0x08 /* Private */,
 
  // signals: parameters
-    QMetaType::Void, QMetaType::QColor, QMetaType::Float,    3,    4,
+    QMetaType::Void, QMetaType::QColor, QMetaType::QColor, QMetaType::Float,    3,    4,    5,
 
  // slots: parameters
     QMetaType::Void,
@@ -79,7 +81,7 @@ void Dialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         Dialog *_t = static_cast<Dialog *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->sendColorAndWidthData((*reinterpret_cast< QColor(*)>(_a[1])),(*reinterpret_cast< float(*)>(_a[2]))); break;
+        case 0: _t->sendColorAndWidthData((*reinterpret_cast< QColor(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< float(*)>(_a[3]))); break;
         case 1: _t->continueClick(); break;
         case 2: _t->cancelClick(); break;
         default: ;
@@ -88,7 +90,7 @@ void Dialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         int *result = reinterpret_cast<int *>(_a[0]);
         void **func = reinterpret_cast<void **>(_a[1]);
         {
-            typedef void (Dialog::*_t)(QColor , float );
+            typedef void (Dialog::*_t)(QColor , QColor , float );
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Dialog::sendColorAndWidthData)) {
                 *result = 0;
             }
@@ -133,9 +135,9 @@ int Dialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void Dialog::sendColorAndWidthData(QColor _t1, float _t2)
+void Dialog::sendColorAndWidthData(QColor _t1, QColor _t2, float _t3)
 {
-    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_END_MOC_NAMESPACE

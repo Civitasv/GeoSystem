@@ -33,7 +33,10 @@ bool Connect_Sql::ConnectToDB()
 bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 	GdalTool gdalTool;
 
-	CGeoLayer *layer = gdalTool.readShape(filename);
+	CGeoLayer *layer = gdalTool.readShapeWithoutTriangle(filename);
+	if(layer==nullptr){
+		return false;
+	}
 	// 注册驱动
 	OGRRegisterAll();
 	// 数据库连接参数
@@ -62,16 +65,21 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 	{
 		return false;
 	}
-	//定义一个字段one_way
-	OGRFieldDefn* pfielddefn_oneway = new OGRFieldDefn("type",OFTString);
+	// 按属性map添加自定义字段
+	QList<QString> propsKey = layer->getPropsKey();
+	OGRFieldDefn* pfielddefn ;
+	for(int i=0;i<propsKey.size();i++){
+		//定义一个字段one_way
+		std::string str = propsKey.at(i).toStdString();
+		pfielddefn = new OGRFieldDefn(str.c_str(),OFTString);
+		//在数据表中创建定义的字段
+		player->CreateField(pfielddefn);
+		delete pfielddefn;
+	}
+	OGRFieldDefn* pfielddefn2 = new OGRFieldDefn("type",OFTString);
 	//在数据表中创建定义的字段
-	player->CreateField(pfielddefn_oneway);
-	OGRFieldDefn* pfielddefn_name = new OGRFieldDefn("properties",OFTString);
-	player->CreateField(pfielddefn_name);
-	//删除字段定义指针
-	delete pfielddefn_oneway;
-	delete pfielddefn_name;
-
+	player->CreateField(pfielddefn2);
+	delete pfielddefn2;
 	for(int i = 0;i<layer->geoObjects.size();i++){
 		CGeoObject *obj = layer->geoObjects[i];
 		std::string str2 = obj->getType().toStdString();
@@ -83,8 +91,16 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 			pgeo->setCoordinateDimension(2);//设置坐标系维度
 			OGRFeature* pfeature = OGRFeature::CreateFeature( player->GetLayerDefn() );
 			pfeature->SetField("type","Point");
-			std::string str3 = ((CGeoPoint*)obj)->getProps().toStdString();
-			pfeature->SetField("properties",str3.c_str());
+
+			QMap<QString,QString> props = ((CGeoPoint*)obj)->getProps();
+			QMapIterator<QString, QString> i(props);
+			while (i.hasNext()) {
+				i.next();
+				std::string str = i.key().toStdString();
+				std::string str2 = i.value().toStdString();
+				pfeature->SetField(str.c_str(),str2.c_str());
+			}
+
 			if ( OGRERR_NONE != pfeature->SetGeometry( pgeo ) )
 			{
 				return false;
@@ -109,8 +125,14 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 			pgeo->setCoordinateDimension(2);//设置坐标系维度
 			OGRFeature* pfeature = OGRFeature::CreateFeature( player->GetLayerDefn() );
 			pfeature->SetField("type","Polygon");
-			std::string str3 = ((CGeoPolygon*)obj)->getProps().toStdString();
-			pfeature->SetField("properties",str3.c_str());
+			QMap<QString,QString> props = ((CGeoPolygon*)obj)->getProps();
+			QMapIterator<QString, QString> i(props);
+			while (i.hasNext()) {
+				i.next();
+				std::string str = i.key().toStdString();
+				std::string str2 = i.value().toStdString();
+				pfeature->SetField(str.c_str(),str2.c_str());
+			}
 			if ( OGRERR_NONE != pfeature->SetGeometry( pgeo ) )
 			{
 				return false;
@@ -134,8 +156,14 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 			pgeo->setCoordinateDimension(2);//设置坐标系维度
 			OGRFeature* pfeature = OGRFeature::CreateFeature( player->GetLayerDefn() );
 			pfeature->SetField("type","Polyline");
-			std::string str3 = ((CGeoPolyline*)obj)->getProps().toStdString();
-			pfeature->SetField("properties",str3.c_str());
+			QMap<QString,QString> props = ((CGeoPolyline*)obj)->getProps();
+			QMapIterator<QString, QString> i(props);
+			while (i.hasNext()) {
+				i.next();
+				std::string str = i.key().toStdString();
+				std::string str2 = i.value().toStdString();
+				pfeature->SetField(str.c_str(),str2.c_str());
+			}
 			if ( OGRERR_NONE != pfeature->SetGeometry( pgeo ) )
 			{
 				return false;
@@ -147,6 +175,9 @@ bool Connect_Sql::ConnectToDBSaveShpByGdal(const char* filename){
 			}
 			//delete polyline;
 			OGRFeature::DestroyFeature(pfeature);
+		}else{
+			QMessageBox::critical(NULL, QString::fromLocal8Bit("不支持的类型"), QString::fromLocal8Bit("该要素图层不为点、线、面格式，暂不支持!"), QMessageBox::Yes, QMessageBox::Yes);  
+			return false;
 		}
 	}
 	OGRDataSource::DestroyDataSource(pDS);
@@ -192,13 +223,10 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 	int i=0;
 	while( (poFeature = player->GetNextFeature()) != NULL )
 	{
-		const char* type = poFeature->GetFieldAsString("type");
-		const char* properties = poFeature->GetFieldAsString("properties");
-
 		CGeoObject *object;
 		OGRGeometry *geo = poFeature->GetGeometryRef();
 		if( geo != NULL
-			&& strcmp(type, "Point")==0)
+			&& wkbFlatten(geo->getGeometryType()) == wkbPoint )
 		{
 			OGRPoint *poPoint = (OGRPoint *) geo;
 			object = new CGeoPoint();
@@ -207,11 +235,17 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 			pt.setX(poPoint->getX());
 			pt.setY(poPoint->getY());
 			((CGeoPoint *)object)->setPoint(pt);
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()-0.001*pt.x(),pt.y()+0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()-0.001*pt.x(),pt.y()-0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()+0.001*pt.x(),pt.y()-0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()+0.001*pt.x(),pt.y()+0.001*pt.y()));
+			((CGeoPoint *)object)->pts.append(QPointF(pt.x()-0.001*pt.x(),pt.y()+0.001*pt.y()));
+
 			geolayer->type = 0;
 
 		}
 		else if(geo != NULL
-			&& strcmp(type, "Polygon")==0)
+			&& wkbFlatten(geo->getGeometryType()) == wkbPolygon )
 		{
 			OGRPolygon *polygon = (OGRPolygon*) geo;
 			object = new CGeoPolygon();
@@ -220,6 +254,7 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 			int pointNum = ring->getNumPoints(); // 点个数
 			OGRRawPoint *points = new OGRRawPoint[pointNum];
 			ring->getPoints(points);
+
 			for(int i=0;i<pointNum;i++){
 				QPointF pt;
 				pt.setX(points[i].x);
@@ -230,12 +265,13 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 
 		}
 		else if(geo != NULL
-			&& strcmp(type, "Polyline")==0 )
+			&& wkbFlatten(geo->getGeometryType()) == wkbLineString )
 		{
 			OGRLineString *polyline = (OGRLineString*) geo;
 			object = new CGeoPolyline();
 			((CGeoPolyline *)object)->setType(QString("Polyline"));
 			int pointNum = polyline->getNumPoints(); // 点个数
+
 			for(int i=0;i<pointNum;i++){
 				QPointF pt;
 				pt.setX(polyline->getX(i));
@@ -244,44 +280,34 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 			}
 			geolayer->type = 1;
 
-		}
-
-		object->setProps(properties);
-		// 设置范围
-		OGREnvelope *envelope2 = new OGREnvelope;
-		geo->getEnvelope(envelope2);
-		object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
-		if(object->getType().compare("Polygon")==0){ // 如果是多边形
-			/*QPolygonF pts = ((CGeoPolygon *)object)->pts; // 得到多边形所有顶点
-			// 三角剖分
-			QPolygonF result;
-			Triangulate::Process(pts,result);
-			CGeoObject *obj = new CGeoPolygon();
-			((CGeoPolygon *)obj)->pts = result;
-			((CGeoPolygon *)obj)->setType("Polygon");
-			geolayer->addObjects(obj);*/
-			gpc_tristrip* tristrip = new gpc_tristrip();
-			Triangle((CGeoPolygon*)object,tristrip);
-			CGeoObject *obj = new CGeoPolygon();
-			((CGeoPolygon *)obj)->setType("Polygon");
-			for (int i=0; i<tristrip->num_strips; i++)
-			{
-				for (int j=0; j<tristrip->strip[i].num_vertices; j++)
-				{
-					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j].x,tristrip->strip[i].vertex[j].y));
-					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j+1].x,tristrip->strip[i].vertex[j+1].y));
-					((CGeoPolygon *)obj)->addPoint(QPointF(tristrip->strip[i].vertex[j+2].x,tristrip->strip[i].vertex[j+2].y));
-				}
-			}
-			geolayer->addObjects(obj);
 		}else{
-			geolayer->addObjects(object);
+			QMessageBox::critical(NULL, QString::fromLocal8Bit("不支持的类型"), QString::fromLocal8Bit("该要素图层不为点、线、面格式，暂不支持!"), QMessageBox::Yes, QMessageBox::Yes);  
+			return nullptr;
 		}
-	}
 
-	OGRDataSource::DestroyDataSource(pDS);
+		QMap<QString,QString> str;
+		// 设置属性
+		for(int iField = 0; iField <n; iField++ )
+		{
+			str.insert(poFeaDefn->GetFieldDefn(iField)->GetNameRef(),poFeature->GetFieldAsString(iField));
+		}
+		object->setProps(str);
+		if(object->getType().compare("Point")!=0){
+			// 设置范围
+			OGREnvelope *envelope2 = new OGREnvelope;
+			geo->getEnvelope(envelope2);
+			object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
+			object->centriod = object->getRect().center();
+		}
+
+		geolayer->addObjects(object);
+		OGRFeature::DestroyFeature( poFeature );
+
+	}
+	GDALClose( pDS );
 	MyXMLReader xmlReader;
 	xmlReader.readSLDFile("G:\\finally\\polygon.xml",geolayer);
+	geolayer->setPropsKey();
+	makeIndex(geolayer);
 	return geolayer;
-
 }

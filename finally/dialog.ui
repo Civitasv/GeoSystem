@@ -26,9 +26,6 @@
      <property name="rightMargin">
       <number>30</number>
      </property>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5"/>
-     </item>
     </layout>
    </item>
    <item>

@@ -11,10 +11,13 @@ MyClass::MyClass(QWidget *parent)
 	mywizard = new MyWizard();
 	QObject::connect(this,SIGNAL(updateMyGLSignal(int,const char*,int)),gl,SLOT(updateMyGLSlot(int,const char*,int)));
 	QObject::connect(this,SIGNAL(updateMyGLPostgresqlSignal(int,int,QString,QString,QString,QString,QString ,QString )),gl,SLOT(updateMyGLPostgresqlSlot(int,int,QString,QString,QString,QString,QString ,QString)));
-	QObject::connect(this,SIGNAL(updateData(int,CGeoMap*)),gl,SLOT(updateData(int,CGeoMap*)));
+	QObject::connect(this,SIGNAL(updateData(int,CGeoMap*,int,int)),gl,SLOT(updateData(int,CGeoMap*,int,int)));
 	QObject::connect(this,SIGNAL(updateLayerIDSignal(int,int)),gl,SLOT(updateLayerID(int,int)));
 	QObject::connect(mywizard,SIGNAL(sendPostgresqlData(QString ,QString ,QString ,QString ,QString ,QString )),this,SLOT(getPostgresqlSlot(QString ,QString ,QString ,QString ,QString ,QString )));
-	QObject::connect(this,SIGNAL(sendColorAndWidthData2(int ,QColor ,float )),gl,SLOT(getColorAndWidthData2(int ,QColor ,float  )));
+	QObject::connect(this,SIGNAL(sendColorAndWidthData2(int ,QColor ,QColor,float )),gl,SLOT(getColorAndWidthData2(int ,QColor ,QColor,float  )));
+	QObject::connect(this,SIGNAL(sendColorAndWidthData(vector<int> ,QColor ,QColor ,float )),gl,SLOT(getColorAndWidthObjs(vector<int> ,QColor ,QColor ,float)));
+	QObject::connect(ui.pushButton_2,SIGNAL(clicked()),this,SLOT(clearContent()));
+
 	ui.verticalLayout_2->addWidget(gl);
 	//this->setWindowIcon(QIcon(":/qss_icons/rc/address.svg"));
 }
@@ -115,9 +118,10 @@ void MyClass::readShape(){
 	}
 }
 
-void MyClass::getColorAndWidthData(int layerID,QColor color,float width){
-	emit sendColorAndWidthData2(layerID,color,width);
+void MyClass::getColorAndWidthData(int layerID,QColor fillColor,QColor strokeColor,float width){
+	emit sendColorAndWidthData2(layerID,fillColor,strokeColor,width);
 }
+
 
 
 
@@ -138,6 +142,7 @@ void MyClass::saveShapefile(){
 		}
 		Connect_Sql connectSql;
 		connectSql.ConnectToDBSaveShpByGdal(fileName);
+		QMessageBox::information(NULL, QString::fromLocal8Bit("储存情况！"), QString::fromLocal8Bit("已成功储存该shp文件！"), QMessageBox::Yes, QMessageBox::Yes);  
 	}
 	else{
 		qDebug()<<"取消";
@@ -150,14 +155,13 @@ void MyClass::getDatabaseData(){
 	mywizard->show();
 }
 
-
 void MyClass::createActions(){
 	connect(ui.actionGeojson, &QAction::triggered, this, &MyClass::readGeoJson);
 	connect(ui.actionShp, &QAction::triggered, this, &MyClass::readShape);
 	connect(ui.actionSave_shapefile,&QAction::triggered,this,&MyClass::saveShapefile);
 	connect(ui.actionGet_databaseData,&QAction::triggered,this,&MyClass::getDatabaseData);
-
-
+	//connect(ui.actionIndex_grid,&QAction::triggered,this,&MyClass::showIndexGrids);
+	//connect(ui.actionHideIndexGrid,&QAction::triggered,this,&MyClass::hideIndexGrids);
 }
 void MyClass::getPostgresqlSlot(QString dbname,QString host,QString user,QString password,QString table,QString port){
 	this->dbname = dbname;
@@ -172,7 +176,7 @@ void MyClass::getPostgresqlSlot(QString dbname,QString host,QString user,QString
 	emit updateMyTreeWidgetSignal(gl->map);
 	gl->update();
 }
-void MyClass::updateTreeGLSlot(int mode,CGeoMap *map){
+void MyClass::updateTreeGLSlot(int mode,CGeoMap *map,int layerID,int size){
 	/*
 	MyGLWidget* glTemp = new MyGLWidget();
 	glTemp->map = gl->map;
@@ -193,7 +197,7 @@ void MyClass::updateTreeGLSlot(int mode,CGeoMap *map){
 	*/
 	//int layerID = gl->map->geoLayers.size();
 	//int mode = 0;
-	emit updateData(mode,map);
+	emit updateData(mode,map,layerID,size);
 	//this->show();
 	gl->update();
 }
@@ -225,7 +229,82 @@ map->paint(&painter);
 }
 */
 
+
 void MyClass::updateLayerIDSlot(int mode,int layerID){
 	emit updateLayerIDSignal(mode,layerID);
 	gl->update();
+}
+/*
+void MyClass::showIndexGrids(){
+gl->showIndexGrid = true;
+}
+
+void MyClass::hideIndexGrids(){
+gl->showIndexGrid = false;
+}
+*/
+void MyClass::IndexGrids(){
+	gl->update();
+}
+
+void MyClass::search(){
+	if(!gl->viewLayer)
+		return;
+	if(gl->viewLayer->getLayerName().compare("bou2_4p")!=0)
+		return;
+	// 获得lineedit内容
+	QString content = ui.lineEdit->displayText();
+	if (!content.isNull()) {
+		QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+		manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+		QNetworkRequest qnr(QUrl("http://www.cartovision.cn/LuceneDemo/search?name=" + content));
+		QNetworkReply *reply = manager->get(qnr);
+		connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(finishHTTP(QNetworkReply*)),Qt::UniqueConnection);
+	}
+}
+
+//完成网络请求
+void MyClass::finishHTTP(QNetworkReply *reply)
+{
+	QString result = reply->readAll();
+	vector<int> objID;
+	// 解析result
+	QJsonParseError parseError;
+	QJsonDocument jsonDocument = QJsonDocument::fromJson(result.toUtf8(), &parseError);
+	if (parseError.error != QJsonParseError::NoError)
+	{
+		qDebug() << parseError.error << endl;
+	}
+	QJsonObject jsonObject = jsonDocument.object();
+	// 得到objID
+	if (jsonObject["flag"].toInt() == 1) {
+		//窗口显示结果
+		QString info;
+		//查询到了结果
+		for (int i = 0; i < jsonObject["resultList"].toArray().size(); i++) {
+			QJsonObject resultObj = jsonObject["resultList"].toArray()[i].toObject();
+			QString name = resultObj["name"].toString();
+			int index = resultObj["id"].toString().toInt();
+			double area = resultObj["area"].toString().toDouble();
+			objID.push_back(index);
+			info += QString::fromLocal8Bit("地区名字:") + name + QString::fromLocal8Bit(",地区面积:") + QString::number(area) + QString::fromLocal8Bit("万平方千米\n");
+		}
+		QMessageBox::information(NULL, QString::fromLocal8Bit("查询结果"), info, QMessageBox::Yes, QMessageBox::Yes);  
+		// 发送信号使objID上色
+		QColor fillColor("#b97016");
+		QColor strokeColor("#ca590a");
+		float strokeWidth = 1.5;
+		emit sendColorAndWidthData(objID,fillColor,strokeColor,strokeWidth);
+	}
+	else {
+		QMessageBox::critical(NULL, QString::fromLocal8Bit("查询结果"), QString::fromLocal8Bit("查询失败!"), QMessageBox::Yes, QMessageBox::Yes);  
+		return;
+	}
+
+	//释放
+	reply->deleteLater();
+}
+
+void MyClass::clearContent(){
+	ui.lineEdit->clear();
 }

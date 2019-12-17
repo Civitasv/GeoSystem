@@ -4,6 +4,7 @@
 #include <qpoint.h>
 #include <qpainter.h>
 #include <qtransform.h>
+#include <qmap.h>
 #define FLT_MAX         3.402823466e+38F
 
 class CGeoObject
@@ -14,12 +15,13 @@ private:
 	// 外接矩形 可能存在
 	QRectF qRect;
 	// 属性
-	QString properties;
+	QMap<QString,QString> properties;
 public:
 	float fillR,fillG,fillB;
 	float strokeR,strokeG,strokeB;
 	float strokeWidth;
-	float alpha;
+	float fillAlpha,strokeAlpha;
+	QPointF centriod;
 
 	CGeoObject(void);
 	virtual ~CGeoObject(void);
@@ -29,8 +31,8 @@ public:
 	void setType(QString type);
 	QString getType();
 
-	QString getProps();
-	void setProps(QString props);
+	QMap<QString,QString> getProps();
+	void setProps(QMap<QString,QString> props);
 
 	virtual void paint(QPainter *paint);
 

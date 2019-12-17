@@ -1,5 +1,5 @@
 #include "MyGLWidget.h"
-
+#include <GL/glu.h>
 
 MyGLWidget::MyGLWidget(QWidget *parent)
 	: QOpenGLWidget(parent)
@@ -9,13 +9,21 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	VAO = (GLuint *) malloc(16);
 	len = (int *) malloc(16);
 	map = new CGeoMap();
+	choosed = new CGeoObject();
+	seek = new SeekEleAttri();
 	size = 0;
 	QCursor cursor;
 	cursor.setShape(Qt::ArrowCursor);
 	setCursor(cursor);
-	scaleParam = 0;
-	//设置无边框
+	prevFillColor.setNamedColor("#8e2121");
+	prevStrokeColor.setNamedColor("#ca590a");
+	prevStrokeWidth = 1.5;
 	this->setWindowFlags(Qt::FramelessWindowHint);
+	viewLayer = new CGeoLayer();
+	QObject::connect(this,SIGNAL(showAttriTable(CGeoObject*,int)),seek,SLOT(showAttri(CGeoObject*,int)));
+	QObject::connect(seek,SIGNAL(restore(int)),this,SLOT(restore(int)));
+	QObject::connect(seek,SIGNAL(sendColorAndWidthData(int ,QColor ,QColor ,float )),this,SLOT(getColorAndWidthOneObj(int ,QColor ,QColor ,float)));
+	//this->showIndexGrid = false;
 }
 
 MyGLWidget::~MyGLWidget(void)
@@ -92,6 +100,13 @@ void MyGLWidget::initializeGL(){
 		readDataFromPostgresql();
 	}
 	loadData();
+	if(mode==0 || mode==1||mode==3||mode==4||mode==5||mode==6){
+		if(viewLayer->getRect().width()!=0){
+			rect = viewLayer->getRect();
+		}else{
+			rect = viewLayer->getScope();
+		}
+	}
 }
 
 void MyGLWidget::resizeGL(int w,int h){
@@ -109,20 +124,14 @@ void MyGLWidget::paintGL(){
 	if(size==0){
 		return;
 	}
-	if(mode==0 || mode==1||mode==3||mode==4||mode==5||mode==6){
-		if(viewLayer->getRect().width()!=0){
-			rect = viewLayer->getRect();
-		}else{
-			rect = viewLayer->getScope();
-		}
-	}
+
 	QMatrix4x4 model;
 	QMatrix4x4 view;
 	QMatrix4x4 ortho;
 	float screen_width = width();
 	float screen_height = height();
-	ortho.scale(1+scaleParam); 
-
+	//ortho.scale(1+scaleParam); 
+	qDebug()<<"run";
 	// 正投影矩阵
 	float ratio = -rect.width()/rect.height();
 	float ratio2 = screen_width/screen_height;
@@ -133,7 +142,7 @@ void MyGLWidget::paintGL(){
 		ortho.scale(1,ratio2/ratio); 
 	}
 	ortho.ortho(rect);
-	ortho.translate(offset.x(),-offset.y());
+	//ortho.translate(offset.x(),-offset.y());
 
 	//ortho.ortho(70.0f,140.0f,3.0f,60.0f,0.0f,15.0f);
 	view.lookAt(QVector3D(0,0,0),QVector3D(0,0,0),QVector3D(0,1,0));
@@ -150,36 +159,70 @@ void MyGLWidget::paintGL(){
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, view.data());
 	glUniformMatrix4fv(modeLoc, 1, GL_FALSE, model.data());
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, ortho.data());
-
+	modelTemp = model;
+	viewTemp = view;
+	orthoTemp = ortho;
 	int count = 0;
 
 	for(int i=0;i<map->geoLayers.size();i++){
+		if(!map->geoLayers[i]->getVisible()&& map->geoLayers[i]->type==2){
+			count += map->geoLayers[i]->geoObjects.size()*2; // 越过两次
+			count++; //格网
+
+			continue;
+		}
+		else if(!map->geoLayers[i]->getVisible()&& map->geoLayers[i]->type==1){
+			count++; //格网
+			count += map->geoLayers[i]->geoObjects.size();
+			continue;
+		}
+		else if(!map->geoLayers[i]->getVisible()&& map->geoLayers[i]->type==0){
+			count+= map->geoLayers[i]->geoObjects.size();;
+			count++; //格网
+			continue;
+		}
 		if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==2){
-			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){ // 绘制填充
 				CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
 				// 启动反走样
 				glEnable(GL_BLEND);
 				glEnable(GL_POLYGON_SMOOTH);
 				glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-				glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->alpha);
+				glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->fillAlpha);
 				glBindVertexArray(VAO[count]);
 				glDrawArrays(GL_TRIANGLES, 0, len[count]);
 				count++;
 			}
+			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){ // 绘制轮廓
+				CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
+				// 启动反走样
+				glEnable(GL_BLEND);
+				glEnable(GL_POLYGON_SMOOTH);
+				glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+				glLineWidth(obj->strokeWidth); 
+				glUniform4f(colorLoc, obj->strokeR, obj->strokeG, obj->strokeB, obj->strokeAlpha);
+				glBindVertexArray(VAO[count]);
+				glDrawArrays(GL_LINE_STRIP, 0, len[count]);
+				count++;
+			}
 		}
 		else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==0 ){
-			CGeoObject *obj = map->geoLayers[i]->geoObjects[0];
-			// 启动反走样
-			glEnable(GL_BLEND);
-			glEnable(GL_POINT_SMOOTH);
-			glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-			glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->alpha);
-			glPointSize(obj->strokeWidth);
-			glBindVertexArray(VAO[count]);
-			glDrawArrays(GL_POINTS, 0, len[count]);
-			count++;
+			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
+				CGeoObject *obj = map->geoLayers[i]->geoObjects[j];
+				// 启动反走样
+				glEnable(GL_BLEND);
+				glEnable(GL_POINT_SMOOTH);
+				glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+				glUniform4f(colorLoc, obj->fillR, obj->fillG, obj->fillB, obj->fillAlpha);
+				glPointSize(obj->strokeWidth);
+				glBindVertexArray(VAO[count]);
+				glDrawArrays(GL_POINTS, 0, len[count]);
+				count++;
+			}
 		}
 		else if(map->geoLayers[i]->getVisible()&&map->geoLayers[i]->type==1 ){
 			for(int j=0;j<map->geoLayers[i]->geoObjects.size();j++){
@@ -189,7 +232,7 @@ void MyGLWidget::paintGL(){
 				glEnable(GL_LINE_SMOOTH);
 				glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);  // Antialias the lines
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-				glUniform4f(colorLoc, obj->strokeR, obj->strokeG, obj->strokeB, obj->alpha);
+				glUniform4f(colorLoc, obj->strokeR, obj->strokeG, obj->strokeB, obj->strokeAlpha);
 				// 线宽
 				glLineWidth(obj->strokeWidth); 
 				glBindVertexArray(VAO[count]);
@@ -197,8 +240,14 @@ void MyGLWidget::paintGL(){
 				count++;
 			}
 		}
-
+		if(map->geoLayers[i]->showIndexGrid){
+			glBindVertexArray(VAO[count]);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDrawArrays(GL_QUADS, 0, len[count]);
+		}
+		count++;
 	}
+
 }
 
 void MyGLWidget:: checkCompileErrors(unsigned int shader, std::string type)
@@ -229,38 +278,44 @@ void MyGLWidget::readDataFromGeoJSON(const char* filename){
 	// 获取layer
 	GeoJsonTool geo;
 	CGeoLayer *layer = geo.readGeoJSON(filename);
-	map->addLayer(layer);
-	viewLayer = map->geoLayers[layerID];
+	if(layer!=nullptr){
+		map->addLayer(layer);
+		viewLayer = map->geoLayers[layerID];
+	}
 }
 
 void MyGLWidget::readDataFromShape(const char* filename){
 	// 获取layer
 	GdalTool gdal;
 	CGeoLayer *layer = gdal.readShape(filename);
-	// 使用第二种方式设置map的范围
-	map->addLayer(layer);
-	viewLayer = map->geoLayers[layerID];
+	if(layer!=nullptr){
+		// 使用第二种方式设置map的范围
+		map->addLayer(layer);
+		viewLayer = map->geoLayers[layerID];
+	}
 }
 
 void MyGLWidget::readDataFromPostgresql(){
 	Connect_Sql connectSql;
 	CGeoLayer* layer = connectSql.ConnectToDBGetShpByGdal(dbname,port,host,user,password,table);
-	map->addLayer(layer);
-	viewLayer = map->geoLayers[layerID];
+	if(layer!=nullptr){
+		map->addLayer(layer);
+		viewLayer = map->geoLayers[layerID];
+	}
 }
 
 
 void MyGLWidget::loadData(){
-	
+
 	size = 0;
 	for(int i=0;i<map->geoLayers.size();i++){
 		if(map->geoLayers[i]->getVisible() && (map->geoLayers[i]->type==2 || map->geoLayers[i]->type==1)){ // 可见且为POLYGON
-			// 对每一个POLYGON LAYER的每一个object生成一个VBO和VAO对象
-			size += map->geoLayers[i]->geoObjects.size();
+			// 对每一个POLYGON LAYER的每一个object生成两个VBO和VAO对象 内部填充+外部轮廓
+			size += map->geoLayers[i]->geoObjects.size()*2;
 		}
 		else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==0){ // 可见且为POINT
 			// 对每一个POINT LAYER仅生成一个VBO和VAO对象
-			size += 1;
+			size += map->geoLayers[i]->geoObjects.size();
 		}
 		/*else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==1){ // 可见且为POLYLINE
 		// 对每一个POLYINE LAYER仅生成一个VBO和VAO对象
@@ -270,6 +325,7 @@ void MyGLWidget::loadData(){
 	}
 	qDebug()<<size;
 	// 重新分配内存
+	size+=map->geoLayers.size();
 	VAO = new GLuint[size];
 	VBO = new GLuint[size];
 	len =  new int[size];
@@ -278,7 +334,62 @@ void MyGLWidget::loadData(){
 	int num = 0;
 	for(int j=0;j<map->geoLayers.size();j++){
 		CGeoLayer *temp = map->geoLayers[j];
-		if(temp->getVisible() && (temp->type==2 || temp->type==1)){
+		if(temp->getVisible() && temp->type==2 ){ // 需要剖分
+			CGeoLayer *tessaLayer = subvision(temp);
+			for(int i=0;i<tessaLayer->geoObjects.size();i++){ // 内部填充
+				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
+				float *vertices =  (float *) malloc(16);
+				int *count = (int *) malloc(4);
+				*count = 0; // 初始值为零
+				vertices = tessaLayer->geoObjects[i]->getVert(vertices,count);
+				len[num] = *count/3;
+				// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+				glBindVertexArray(VAO[num]);
+				glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
+				glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(0);
+				// color attribute
+				//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+				//glEnableVertexAttribArray(1);
+				// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+				glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+				// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+				// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+				glBindVertexArray(0);
+				delete[] vertices;
+				delete count;
+				num++;
+			}
+			for(int i=0;i<temp->geoObjects.size();i++){ // 外部轮廓
+				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
+				float *vertices =  (float *) malloc(16);
+				int *count = (int *) malloc(4);
+				*count = 0; // 初始值为零
+				vertices = temp->geoObjects[i]->getVert(vertices,count);
+				len[num] = *count/3;
+				// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+				glBindVertexArray(VAO[num]);
+				glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
+				glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(0);
+				// color attribute
+				//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+				//glEnableVertexAttribArray(1);
+				// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+				glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+				// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+				// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+				glBindVertexArray(0);
+				delete[] vertices;
+				delete count;
+				num++;
+			}
+		}
+		else if(temp->getVisible() &&  temp->type==1){
 			for(int i=0;i<temp->geoObjects.size();i++){
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
 				float *vertices =  (float *) malloc(16);
@@ -306,34 +417,74 @@ void MyGLWidget::loadData(){
 				num++;
 			}
 		}
-
 		else if(temp->getVisible() && temp->type==0){
-			// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
-			float *vertices =  new float();
-			int *count = new int();
-			*count = 0; // 初始值为零
-			vertices = temp->getVert(vertices,count);
-			len[num] = *count/3;
-			// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-			glBindVertexArray(VAO[num]);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
-			glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-			// color attribute
-			//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-			//glEnableVertexAttribArray(1);
-			// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-			glBindBuffer(GL_ARRAY_BUFFER, 0); 
+			for(int i=0;i<temp->geoObjects.size();i++){
+				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
+				float *vertices =  new float();
+				int *count = new int();
+				*count = 0; // 初始值为零
+				vertices = temp->geoObjects[i]->getVert(vertices,count);
+				len[num] = *count/3;
+				// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+				glBindVertexArray(VAO[num]);
+				glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
+				glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(0);
+				// color attribute
+				//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+				//glEnableVertexAttribArray(1);
+				// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+				glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
-			// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-			// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-			glBindVertexArray(0);
-			delete[] vertices;
-			delete count;
-			num++;
+				// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+				// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+				glBindVertexArray(0);
+				delete[] vertices;
+				delete count;
+				num++;
+			}
 		}
+		float *vertices =  new float();
+		int count = 0;
+		vector<QuadNode*> arrNode;
+		TraversalQuadTree(temp->tree->root,arrNode);
+		for(int i=0;i<arrNode.size();i++){
+			vertices = (float*)realloc(vertices,sizeof(float)* (count+12));
+			vertices[count] = arrNode[i]->Box.left();
+			vertices[count+1] = arrNode[i]->Box.top();
+			vertices[count+2] = 0.0f;
+			vertices[count+3] = arrNode[i]->Box.left();
+			vertices[count+4] = arrNode[i]->Box.bottom();
+			vertices[count+5] = 0.0f;
+			vertices[count+6] = arrNode[i]->Box.right();
+			vertices[count+7] = arrNode[i]->Box.bottom();
+			vertices[count+8] = 0.0f;
+			vertices[count+9] = arrNode[i]->Box.right();
+			vertices[count+10] = arrNode[i]->Box.top();
+			vertices[count+11] = 0.0f;
+			count+=12;
+		}
+		len[num] = count/3;
+		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+		glBindVertexArray(VAO[num]);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
+		glBufferData(GL_ARRAY_BUFFER, count*sizeof(float), vertices, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		// color attribute
+		//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		//glEnableVertexAttribArray(1);
+		// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+		glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+		// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+		glBindVertexArray(0);
+		delete[] vertices;
+		num++;
 	}
+
 }
 void MyGLWidget::updateMyGLSlot(int mode,const char* filename,int layerID){
 	this->mode = mode;
@@ -345,26 +496,97 @@ void MyGLWidget::updateMyGLSlot(int mode,const char* filename,int layerID){
 
 }
 
-void MyGLWidget::getColorAndWidthData2(int layerID,QColor color,float width){//重新渲染信号
+void MyGLWidget::getColorAndWidthData2(int layerID,QColor fillColor,QColor strokeColor,float width){//重新渲染信号
 	CGeoLayer *layer = map->geoLayers[layerID];
+	prevFillColor = fillColor;
+	prevStrokeColor = strokeColor;
+	prevStrokeWidth = width;
 	for(int i=0;i<layer->geoObjects.size();i++){
 		CGeoObject *obj =layer->geoObjects[i];
-		if(obj->getType().compare("Point")==0 || obj->getType().compare("Polygon")==0){
-			obj->fillR = color.redF();
-			obj->fillG = color.greenF();
-			obj->fillB = color.blueF();
-			obj->alpha = color.alphaF();
-			obj->strokeWidth = width;
-
-		}
-		else if(obj->getType().compare("Polyline")==0){
-			obj->strokeR = color.redF();
-			obj->strokeG = color.greenF();
-			obj->strokeB = color.blueF();
-			obj->alpha = color.alphaF();
-			obj->strokeWidth = width;
-		}
+		obj->fillR = fillColor.redF();
+		obj->fillG = fillColor.greenF();
+		obj->fillB = fillColor.blueF();
+		obj->fillAlpha = fillColor.alphaF();
+		obj->strokeR = strokeColor.redF();
+		obj->strokeG = strokeColor.greenF();
+		obj->strokeB = strokeColor.blueF();
+		obj->strokeAlpha = strokeColor.alphaF();
+		obj->strokeWidth = width;
 	}
+	update();
+}
+
+void MyGLWidget::getColorAndWidthOneObj(int objID,QColor fillColor,QColor strokeColor,float width){//重新渲染一个object
+	//objFillColor = fillColor;
+	//objStrokeColor = strokeColor;
+	//objStrokeWidth = width;
+	CGeoObject *obj =viewLayer->geoObjects[objID];
+	obj->fillR = fillColor.redF();
+	obj->fillG = fillColor.greenF();
+	obj->fillB = fillColor.blueF();
+	obj->fillAlpha = fillColor.alphaF();
+	obj->strokeR = strokeColor.redF();
+	obj->strokeG = strokeColor.greenF();
+	obj->strokeB = strokeColor.blueF();
+	obj->strokeAlpha = strokeColor.alphaF();
+	obj->strokeWidth = width;
+	update();
+}
+
+void MyGLWidget::getColorAndWidthObjs(vector<int> objID,QColor fillColor,QColor strokeColor,float width){//重新渲染一个object
+	for(int i=0;i<this->objID.size();i++){ // 把上次查到的恢复
+		CGeoObject *obj =viewLayer->geoObjects[this->objID.at(i)];
+		obj->fillR = prevFillColor.redF();
+		obj->fillG = prevFillColor.greenF();
+		obj->fillB = prevFillColor.blueF();
+		obj->fillAlpha = prevFillColor.alphaF();
+		obj->strokeR = prevStrokeColor.redF();
+		obj->strokeG = prevStrokeColor.greenF();
+		obj->strokeB = prevStrokeColor.blueF();
+		obj->strokeAlpha = prevStrokeColor.alphaF();
+		obj->strokeWidth = prevStrokeWidth;
+		update();
+	}
+	// 如果有选择，也没了
+	choosed->fillR = prevFillColor.redF();
+	choosed->fillG = prevFillColor.greenF();
+	choosed->fillB = prevFillColor.blueF();
+	choosed->fillAlpha = prevFillColor.alphaF();
+	choosed->strokeR = prevStrokeColor.redF();
+	choosed->strokeG = prevStrokeColor.greenF();
+	choosed->strokeB = prevStrokeColor.blueF();
+	choosed->strokeAlpha = prevStrokeColor.alphaF();
+	choosed->strokeWidth = prevStrokeWidth;
+	this->objID = objID;
+	for(int i=0;i<objID.size();i++){
+		CGeoObject *obj =viewLayer->geoObjects[objID.at(i)];
+		obj->fillR = fillColor.redF();
+		obj->fillG = fillColor.greenF();
+		obj->fillB = fillColor.blueF();
+		obj->fillAlpha = fillColor.alphaF();
+		obj->strokeR = strokeColor.redF();
+		obj->strokeG = strokeColor.greenF();
+		obj->strokeB = strokeColor.blueF();
+		obj->strokeAlpha = strokeColor.alphaF();
+		obj->strokeWidth = width;
+	}
+	update();
+}
+
+void MyGLWidget::restore(int objID){
+	//objFillColor = prevFillColor;
+	//objStrokeColor = prevStrokeColor;
+	//objStrokeWidth = prevStrokeWidth;
+	CGeoObject *obj =viewLayer->geoObjects[objID];
+	obj->fillR = prevFillColor.redF();
+	obj->fillG = prevFillColor.greenF();
+	obj->fillB = prevFillColor.blueF();
+	obj->fillAlpha = prevFillColor.alphaF();
+	obj->strokeR = prevStrokeColor.redF();
+	obj->strokeG = prevStrokeColor.greenF();
+	obj->strokeB = prevStrokeColor.blueF();
+	obj->strokeAlpha = prevStrokeColor.alphaF();
+	obj->strokeWidth = prevStrokeWidth;
 	update();
 }
 
@@ -383,45 +605,55 @@ void MyGLWidget::updateMyGLPostgresqlSlot(int mode,int layerID,QString port,QStr
 
 }
 
-void MyGLWidget::updateData(int mode,CGeoMap* map){
+void MyGLWidget::updateData(int mode,CGeoMap* map,int layerID,int size){
 	this->mode = mode;
 	this->map = map;
-	//loadData();
-	makeCurrent();
-	initializeGL();
-	update();
 
+	makeCurrent();
+	if(size>0){
+		initializeGL();
+	}
+	update();
 }
 
 void MyGLWidget::updateLayerID(int mode,int layerID){
 	this->mode = mode;
 	this->layerID = layerID;
 	viewLayer = map->geoLayers[layerID];
-	offset.setX(0);
-	offset.setY(0);
-	scaleParam = 0;
+	rect = viewLayer->getRect();
+	//offset.setX(0);
+	//offset.setY(0);
+	//scaleParam = 0;
 	makeCurrent();
-	//initializeGL();
 	update();
 }
 
 
 
 void MyGLWidget::wheelEvent(QWheelEvent *event){
-
+	/*
 	QRect tmp=this->geometry();
 	if(event->delta()>0){//如果滚轮往上滚
-		// 放大
-		scaleParam += (event->delta()/(15*8))*0.8;
+	// 放大
+	scaleParam += (event->delta()/(15*8))*0.4;
 	}else{
-		// 缩放
-		scaleParam -= -event->delta()/(15*8)*0.8;
+	// 缩放
+	scaleParam -= -event->delta()/(15*8)*0.4;
 	}
-	if(scaleParam<=-1){
-		scaleParam = -0.9;
-	}
+
 	update();
 	event->accept();
+	*/
+
+	if(event->delta() > 0){   //地图缩小
+		Scale(event->pos(), 1.0 / 0.5);
+		update();
+	}else if(event->delta() < 0) {      //地图放大
+		Scale(event->pos(), 0.5);
+		update();
+	}
+	event->accept();
+
 }
 
 void MyGLWidget::mousePressEvent(QMouseEvent* event){
@@ -430,40 +662,129 @@ void MyGLWidget::mousePressEvent(QMouseEvent* event){
 		cursor.setShape(Qt::ClosedHandCursor);
 		QApplication::setOverrideCursor(cursor);
 		//globalPos()是鼠标指针相对于屏幕左上角的坐标， pos()是窗体左上角相对于屏幕左上角的坐标 （获取未移动前的窗体位置）
-		begin = event->globalPos() - pos();
+		beginRect = event->pos();
+		originWorldRect = rect;
 	}
 	else if(event->button() == Qt::RightButton){
-
+		for(int i=0;i<this->objID.size();i++){ // 把上次查到的恢复
+			CGeoObject *obj =viewLayer->geoObjects[this->objID.at(i)];
+			obj->fillR = prevFillColor.redF();
+			obj->fillG = prevFillColor.greenF();
+			obj->fillB = prevFillColor.blueF();
+			obj->fillAlpha = prevFillColor.alphaF();
+			obj->strokeR = prevStrokeColor.redF();
+			obj->strokeG = prevStrokeColor.greenF();
+			obj->strokeB = prevStrokeColor.blueF();
+			obj->strokeAlpha = prevStrokeColor.alphaF();
+			obj->strokeWidth = prevStrokeWidth;
+			update();
+		}
+		//globalPos()是鼠标指针相对于屏幕左上角的坐标， pos()是窗体左上角相对于屏幕左上角的坐标 （获取未移动前的窗体位置）
+		QPointF query(event->pos().rx(),event->pos().ry());
+		QPointF trans = screenToWorld3(query);
+		vector<int> ItemSearched;
+		choosed->fillR = prevFillColor.redF();
+		choosed->fillG = prevFillColor.greenF();
+		choosed->fillB = prevFillColor.blueF();
+		choosed->fillAlpha = prevFillColor.alphaF();
+		choosed->strokeR = prevStrokeColor.redF();
+		choosed->strokeG = prevStrokeColor.greenF();
+		choosed->strokeB = prevStrokeColor.blueF();
+		choosed->strokeAlpha = prevStrokeColor.alphaF();
+		choosed->strokeWidth = prevStrokeWidth;
+		if(viewLayer->tree->root)
+			PtSearchQTree(viewLayer->tree->root,trans.x(),trans.y(),ItemSearched) ;
+		if(ItemSearched.size()==0){
+			update();
+			seek->close();
+			return;
+		}
+		QColor color("#b97016");
+		choosed = viewLayer->geoObjects[ItemSearched.at(ItemSearched.size()-1)];
+		seek->show();
+		emit showAttriTable(choosed,ItemSearched.at(ItemSearched.size()-1));
+		choosed->fillR = color.redF();
+		choosed->fillG = color.greenF();
+		choosed->fillB = color.blueF();
+		choosed->fillAlpha = color.alphaF();
+		choosed->strokeR = color.redF();
+		choosed->strokeG = color.greenF();
+		choosed->strokeB = color.blueF();
+		choosed->strokeAlpha = color.alphaF();
+		update();
 	}
 }
+
 void MyGLWidget::mouseReleaseEvent(QMouseEvent* event){
 	QApplication::restoreOverrideCursor();
 }
 void MyGLWidget::mouseMoveEvent(QMouseEvent* event){
 	if(event->buttons() & Qt::LeftButton){//与运算
-		QPointF temp;
-		temp = event->globalPos() -pos() -begin;//
-		offset.setX(offset.x()+screenToWorld(temp).x());
-		offset.setY(offset.y()-screenToWorld(temp).y());
-
+		//QPointF temp;
+		//temp = event->globalPos() -pos() -begin;//
+		//offset.setX(offset.x()+screenToWorld(temp).x());
+		//offset.setY(offset.y()-screenToWorld(temp).y());
+		//float x = event->pos().rx();
+		//float y = event->pos().ry();
 		//move(offset);//移动到具体坐标点
 		//paintGL();
-		update();
+		endRect = event->pos();
+		QPointF worldPointBegin = screenToWorld3(beginRect);
+		QPointF worldPointEnd = screenToWorld3(endRect);
+		QPointF moveVector = worldPointEnd - worldPointBegin;
+		QPointF leftTopPoint = originWorldRect.topLeft();
+		QPointF rightBottomPoint = originWorldRect.bottomRight();
+		rect = QRectF(leftTopPoint - moveVector, rightBottomPoint - moveVector);
 		qDebug()<<"globalPos"<<event->globalPos()<<endl;
 		qDebug()<<"pos"<<pos()<<endl;
+		update();
 	}
 }
 
+void MyGLWidget::Scale(QPoint originScreen, float scale){
+	QPointF originWorld = screenToWorld3(originScreen);
+	QPointF leftTop = rect.topLeft();
+	QPointF rightBottom = rect.bottomRight();
+	QPointF newLeftTop = (leftTop - originWorld)*scale + originWorld;
+	QPointF newRightBottom = (rightBottom - originWorld)*scale + originWorld;
+	rect = QRectF(newLeftTop, newRightBottom);
+}
+/*
+// 平移使用
 QPointF MyGLWidget::screenToWorld(QPointF screenPoint){
-	QPointF p;
+QPointF p;
+double w = this->width() * 1.0;
+double h = this->height() * 1.0;
+double x = screenPoint.x() * 1.0;
+double y = screenPoint.y() * 1.0;
+
+p.setX(x / w * rect.width()/(10*(1+scaleParam)));
+p.setY(y/h * rect.height()/(10*(1+scaleParam)));
+
+return p;
+
+}
+*/
+
+QPointF MyGLWidget::screenToWorld3(QPointF screenPoint)
+{
+	QPointF normalizedPoint = screenToNormalizedPos(screenPoint);
+	QVector4D normalizedPoint4D(normalizedPoint);
+	QVector4D worldPoint4D = viewTemp.inverted()*orthoTemp.inverted()*normalizedPoint4D;
+	QPointF worldCenter = rect.center();
+	return worldPoint4D.toPointF() + worldCenter;
+}
+
+QPointF MyGLWidget::screenToNormalizedPos(QPointF screenPoint)
+{
+	QPointF normalizedPoint;
 	double w = this->width() * 1.0;
 	double h = this->height() * 1.0;
 	double x = screenPoint.x() * 1.0;
 	double y = screenPoint.y() * 1.0;
 
-	p.setX(x / w * rect.width()/(10*(1+scaleParam)));
-	p.setY(y/h * rect.height()/(10*(1+scaleParam)));
+	normalizedPoint.setX((2 * x / w) - 1);
+	normalizedPoint.setY(1 - (2 * y / h));
 
-	return p;
-
+	return normalizedPoint;
 }
