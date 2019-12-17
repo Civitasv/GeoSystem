@@ -1,7 +1,9 @@
 # git ignore file
 # Prerequisites
 *.d
-
+/Win32/*
+*.suo
+/finally/Debug/*
 # Compiled Object files
 *.slo
 *.lo
