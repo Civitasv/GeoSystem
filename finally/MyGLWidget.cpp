@@ -11,18 +11,20 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	map = new CGeoMap();
 	choosed = new CGeoObject();
 	seek = new SeekEleAttri();
+	kernel = new KernelWidget();
 	size = 0;
 	QCursor cursor;
 	cursor.setShape(Qt::ArrowCursor);
 	setCursor(cursor);
 	prevFillColor.setNamedColor("#8e2121");
 	prevStrokeColor.setNamedColor("#ca590a");
-	prevStrokeWidth = 1.5;
+	prevStrokeWidth = 2;
 	this->setWindowFlags(Qt::FramelessWindowHint);
 	viewLayer = new CGeoLayer();
 	QObject::connect(this,SIGNAL(showAttriTable(CGeoObject*,int)),seek,SLOT(showAttri(CGeoObject*,int)));
 	QObject::connect(seek,SIGNAL(restore(int)),this,SLOT(restore(int)));
 	QObject::connect(seek,SIGNAL(sendColorAndWidthData(int ,QColor ,QColor ,float )),this,SLOT(getColorAndWidthOneObj(int ,QColor ,QColor ,float)));
+	QObject::connect(this,SIGNAL(KDEAnalyze(float ,float **,float ,float  )),kernel,SLOT(KDEAnalyze(float ,float **,float ,float )));
 	//this->showIndexGrid = false;
 }
 
@@ -335,18 +337,25 @@ void MyGLWidget::loadData(){
 	for(int j=0;j<map->geoLayers.size();j++){
 		CGeoLayer *temp = map->geoLayers[j];
 		if(temp->getVisible() && temp->type==2 ){ // 需要剖分
-			CGeoLayer *tessaLayer = subvision(temp);
+			CGeoLayer *tessaLayer = temp->tessaLayer;
 			for(int i=0;i<tessaLayer->geoObjects.size();i++){ // 内部填充
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
-				float *vertices =  (float *) malloc(16);
-				int *count = (int *) malloc(4);
+				/*float *vertices =  new float();
+				int *count = new int();
 				*count = 0; // 初始值为零
 				vertices = tessaLayer->geoObjects[i]->getVert(vertices,count);
 				len[num] = *count/3;
+				*/
+				CGeoObject *obj = tessaLayer->geoObjects[i];
+				float *vertices;
+				vertices = tessaLayer->geoObjects[i]->getVert2(vertices);
+				int count = 3*((CGeoPolygon*)obj)->pts.size();
+				len[num] = count/3;
+
 				// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 				glBindVertexArray(VAO[num]);
 				glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
-				glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, count*sizeof(float), vertices, GL_STATIC_DRAW);
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 				glEnableVertexAttribArray(0);
 				// color attribute
@@ -359,20 +368,24 @@ void MyGLWidget::loadData(){
 				// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 				glBindVertexArray(0);
 				delete[] vertices;
-				delete count;
 				num++;
 			}
 			for(int i=0;i<temp->geoObjects.size();i++){ // 外部轮廓
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
-				float *vertices =  (float *) malloc(16);
-				int *count = (int *) malloc(4);
+				/*float *vertices =  new float();
+				int *count = new int();
 				*count = 0; // 初始值为零
 				vertices = temp->geoObjects[i]->getVert(vertices,count);
-				len[num] = *count/3;
+				len[num] = *count/3;*/
+				CGeoObject *obj = temp->geoObjects[i];
+				float *vertices;
+				vertices = temp->geoObjects[i]->getVert2(vertices);
+				int count = 3*((CGeoPolygon*)obj)->pts.size();
+				len[num] = count/3;
 				// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 				glBindVertexArray(VAO[num]);
 				glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
-				glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, count*sizeof(float), vertices, GL_STATIC_DRAW);
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 				glEnableVertexAttribArray(0);
 				// color attribute
@@ -385,22 +398,26 @@ void MyGLWidget::loadData(){
 				// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 				glBindVertexArray(0);
 				delete[] vertices;
-				delete count;
 				num++;
 			}
 		}
 		else if(temp->getVisible() &&  temp->type==1){
 			for(int i=0;i<temp->geoObjects.size();i++){
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
-				float *vertices =  (float *) malloc(16);
-				int *count = (int *) malloc(4);
+				/*float *vertices =  new float();
+				int *count = new int();
 				*count = 0; // 初始值为零
 				vertices = temp->geoObjects[i]->getVert(vertices,count);
-				len[num] = *count/3;
+				len[num] = *count/3;*/
+				CGeoObject *obj = temp->geoObjects[i];
+				float *vertices;
+				vertices = temp->geoObjects[i]->getVert2(vertices);
+				int count = 3*((CGeoPolygon*)obj)->pts.size();
+				len[num] = count/3;
 				// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 				glBindVertexArray(VAO[num]);
 				glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
-				glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, count*sizeof(float), vertices, GL_STATIC_DRAW);
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 				glEnableVertexAttribArray(0);
 				// color attribute
@@ -413,22 +430,26 @@ void MyGLWidget::loadData(){
 				// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 				glBindVertexArray(0);
 				delete[] vertices;
-				delete count;
 				num++;
 			}
 		}
 		else if(temp->getVisible() && temp->type==0){
 			for(int i=0;i<temp->geoObjects.size();i++){
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
-				float *vertices =  new float();
+				/*float *vertices =  new float();
 				int *count = new int();
 				*count = 0; // 初始值为零
 				vertices = temp->geoObjects[i]->getVert(vertices,count);
-				len[num] = *count/3;
+				len[num] = *count/3;*/
+				CGeoObject *obj = temp->geoObjects[i];
+				float *vertices;
+				vertices = temp->geoObjects[i]->getVert2(vertices);
+				int count = 3;
+				len[num] = count/3;
 				// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 				glBindVertexArray(VAO[num]);
 				glBindBuffer(GL_ARRAY_BUFFER, VBO[num]);
-				glBufferData(GL_ARRAY_BUFFER, *count*sizeof(float), vertices, GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, count*sizeof(float), vertices, GL_STATIC_DRAW);
 				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 				glEnableVertexAttribArray(0);
 				// color attribute
@@ -441,7 +462,6 @@ void MyGLWidget::loadData(){
 				// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 				glBindVertexArray(0);
 				delete[] vertices;
-				delete count;
 				num++;
 			}
 		}
@@ -533,7 +553,8 @@ void MyGLWidget::getColorAndWidthOneObj(int objID,QColor fillColor,QColor stroke
 	update();
 }
 
-void MyGLWidget::getColorAndWidthObjs(vector<int> objID,QColor fillColor,QColor strokeColor,float width){//重新渲染一个object
+void MyGLWidget::getColorAndWidthObjs(vector<QString> names,QColor fillColor,QColor strokeColor,float width){//重新渲染一个object
+	seek->close();
 	for(int i=0;i<this->objID.size();i++){ // 把上次查到的恢复
 		CGeoObject *obj =viewLayer->geoObjects[this->objID.at(i)];
 		obj->fillR = prevFillColor.redF();
@@ -557,18 +578,23 @@ void MyGLWidget::getColorAndWidthObjs(vector<int> objID,QColor fillColor,QColor 
 	choosed->strokeB = prevStrokeColor.blueF();
 	choosed->strokeAlpha = prevStrokeColor.alphaF();
 	choosed->strokeWidth = prevStrokeWidth;
-	this->objID = objID;
-	for(int i=0;i<objID.size();i++){
-		CGeoObject *obj =viewLayer->geoObjects[objID.at(i)];
-		obj->fillR = fillColor.redF();
-		obj->fillG = fillColor.greenF();
-		obj->fillB = fillColor.blueF();
-		obj->fillAlpha = fillColor.alphaF();
-		obj->strokeR = strokeColor.redF();
-		obj->strokeG = strokeColor.greenF();
-		obj->strokeB = strokeColor.blueF();
-		obj->strokeAlpha = strokeColor.alphaF();
-		obj->strokeWidth = width;
+	this->names = names;
+	for(int i=0;i<names.size();i++){
+		for(int j=0;j<viewLayer->geoObjects.size();j++){
+			CGeoObject *obj =viewLayer->geoObjects[j];
+			if(obj->getProps()["NAME"].compare(names[i])==0 || obj->getProps()["name"].compare(names[i])==0){
+				obj->fillR = fillColor.redF();
+				obj->fillG = fillColor.greenF();
+				obj->fillB = fillColor.blueF();
+				obj->fillAlpha = fillColor.alphaF();
+				obj->strokeR = strokeColor.redF();
+				obj->strokeG = strokeColor.greenF();
+				obj->strokeB = strokeColor.blueF();
+				obj->strokeAlpha = strokeColor.alphaF();
+				obj->strokeWidth = width;
+				this->objID.push_back(j);
+			}
+		}
 	}
 	update();
 }
@@ -787,4 +813,85 @@ QPointF MyGLWidget::screenToNormalizedPos(QPointF screenPoint)
 	normalizedPoint.setY(1 - (2 * y / h));
 
 	return normalizedPoint;
+}
+
+void MyGLWidget::KDEAnaly(int layerID){
+	// 核密度
+	float bandWidth;
+	float **loc;
+	float maxLoc;
+	float minLoc;
+	CGeoLayer *kdeLayer = map->geoLayers[layerID];
+	vector<double> Distance;
+	float Avex=0,Avey=0;
+	for(int i=0;i<kdeLayer->geoObjects.size();i++)
+	{
+		CGeoPoint *point = (CGeoPoint*)kdeLayer->geoObjects[i];
+		Avex+=point->getPoint().x();
+		Avey+=point->getPoint().y();
+	}
+	Avex/=kdeLayer->geoObjects.size();
+	Avey/=kdeLayer->geoObjects.size();
+	for(int i=0;i<kdeLayer->geoObjects.size();i++)
+	{
+		CGeoPoint *point = (CGeoPoint*)kdeLayer->geoObjects[i];
+		// Gauss distance
+		float Dis=sqrt(pow(point->getPoint().x()-Avex,2)+pow(point->getPoint().y()-Avey,2));
+		Distance.push_back(Dis);
+	}
+	sort(Distance.begin(),Distance.end());
+	float Dm=Distance.at(Distance.size()/2);
+	double SDx=0,SDy=0;
+	for(int i=0;i<kdeLayer->geoObjects.size();i++)
+	{
+		CGeoPoint *point = (CGeoPoint*)kdeLayer->geoObjects[i];
+		SDx+=pow(point->getPoint().x()-Avex,2);
+		SDy+=pow(point->getPoint().y()-Avey,2);
+	}
+	double SD=sqrt(SDx/kdeLayer->geoObjects.size()+SDy/kdeLayer->geoObjects.size());
+	if(SD>(sqrt(1/log(2))*Dm))
+		bandWidth=0.9*(sqrt(1/log(2))*Dm)*pow(kdeLayer->geoObjects.size(),-0.2);
+	else
+		bandWidth=0.9*SD*pow(kdeLayer->geoObjects.size(),-0.2);
+	int rasterNum = 1000;
+	loc=new float*[rasterNum];
+	for(int i=0;i<rasterNum;i++)
+	{
+		loc[i]=new float[rasterNum];
+	}
+	//calculateKde
+	float temp;
+	float dis2;
+	float width=(kdeLayer->getRect().right()-kdeLayer->getRect().left())/rasterNum;
+	float height=(kdeLayer->getRect().top()-kdeLayer->getRect().bottom())/rasterNum;
+	for(int i=0;i<rasterNum;i++)
+	{
+		float x,y;
+		x=kdeLayer->getRect().left()+width*i+width/2;
+		for(int j=0;j<rasterNum;j++)
+		{
+			temp=0;
+			y=kdeLayer->getRect().bottom()+height*j+height/2;
+			for(int m=0;m<kdeLayer->geoObjects.size();m++)
+			{
+				CGeoPoint *point = (CGeoPoint*)kdeLayer->geoObjects[m];
+				dis2=pow(x-point->getPoint().x(),2)+pow(y-point->getPoint().y(),2);
+				if(dis2<(bandWidth*bandWidth))
+				{
+					temp+=3/3.1415926*pow((1-dis2/pow(bandWidth,2)),2);
+				}
+			}
+			temp=temp/kdeLayer->geoObjects.size()/pow(bandWidth,2);
+			loc[i][j]=temp;
+			if(i==0&&j==0)
+			{
+				maxLoc=minLoc=temp;
+			}
+			else if(temp>maxLoc)
+				maxLoc=temp;
+			else if(temp<minLoc)
+				minLoc=temp;
+		}
+	}
+	emit KDEAnalyze(bandWidth,loc, maxLoc,minLoc);
 }

@@ -15,7 +15,7 @@ SeekEleAttri::SeekEleAttri(QWidget *parent)
 	font.setWeight(75);
 	label->setFont(font);
 	label->setTextFormat(Qt::AutoText);
-	label->setAlignment(Qt::AlignCenter);
+	label->setAlignment(Qt::AlignTop);
 	ui.horizontalLayout_2->addWidget(label);
 	ui.horizontalLayout_2->addWidget(fillColorXM);
 
@@ -23,7 +23,7 @@ SeekEleAttri::SeekEleAttri(QWidget *parent)
 	QLabel *label2= new QLabel("strokeColor:");
 	label2->setFont(font);
 	label2->setTextFormat(Qt::AutoText);
-	label2->setAlignment(Qt::AlignCenter);
+	label2->setAlignment(Qt::AlignTop);
 	ui.horizontalLayout_2->addWidget(label2);
 	ui.horizontalLayout_2->addWidget(strokeColorXM);
 

@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MyClass_t {
-    QByteArrayData data[41];
-    char stringdata0[478];
+    QByteArrayData data[43];
+    char stringdata0[502];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -54,22 +54,24 @@ QT_MOC_LITERAL(21, 221, 9), // "fillColor"
 QT_MOC_LITERAL(22, 231, 11), // "strokeColor"
 QT_MOC_LITERAL(23, 243, 5), // "width"
 QT_MOC_LITERAL(24, 249, 21), // "sendColorAndWidthData"
-QT_MOC_LITERAL(25, 271, 11), // "vector<int>"
-QT_MOC_LITERAL(26, 283, 5), // "objID"
-QT_MOC_LITERAL(27, 289, 11), // "readGeoJson"
-QT_MOC_LITERAL(28, 301, 9), // "readShape"
-QT_MOC_LITERAL(29, 311, 13), // "saveShapefile"
-QT_MOC_LITERAL(30, 325, 15), // "getDatabaseData"
-QT_MOC_LITERAL(31, 341, 10), // "IndexGrids"
-QT_MOC_LITERAL(32, 352, 12), // "clearContent"
-QT_MOC_LITERAL(33, 365, 16), // "updateTreeGLSlot"
-QT_MOC_LITERAL(34, 382, 17), // "updateLayerIDSlot"
-QT_MOC_LITERAL(35, 400, 17), // "getPostgresqlSlot"
-QT_MOC_LITERAL(36, 418, 20), // "getColorAndWidthData"
-QT_MOC_LITERAL(37, 439, 6), // "search"
-QT_MOC_LITERAL(38, 446, 10), // "finishHTTP"
-QT_MOC_LITERAL(39, 457, 14), // "QNetworkReply*"
-QT_MOC_LITERAL(40, 472, 5) // "reply"
+QT_MOC_LITERAL(25, 271, 15), // "vector<QString>"
+QT_MOC_LITERAL(26, 287, 5), // "names"
+QT_MOC_LITERAL(27, 293, 8), // "KDEAnaly"
+QT_MOC_LITERAL(28, 302, 11), // "readGeoJson"
+QT_MOC_LITERAL(29, 314, 9), // "readShape"
+QT_MOC_LITERAL(30, 324, 13), // "saveShapefile"
+QT_MOC_LITERAL(31, 338, 15), // "getDatabaseData"
+QT_MOC_LITERAL(32, 354, 10), // "IndexGrids"
+QT_MOC_LITERAL(33, 365, 12), // "clearContent"
+QT_MOC_LITERAL(34, 378, 16), // "updateTreeGLSlot"
+QT_MOC_LITERAL(35, 395, 17), // "updateLayerIDSlot"
+QT_MOC_LITERAL(36, 413, 17), // "getPostgresqlSlot"
+QT_MOC_LITERAL(37, 431, 20), // "getColorAndWidthData"
+QT_MOC_LITERAL(38, 452, 6), // "search"
+QT_MOC_LITERAL(39, 459, 10), // "finishHTTP"
+QT_MOC_LITERAL(40, 470, 14), // "QNetworkReply*"
+QT_MOC_LITERAL(41, 485, 5), // "reply"
+QT_MOC_LITERAL(42, 491, 10) // "KDEAnalyze"
 
     },
     "MyClass\0updateMyGLSignal\0\0mode\0"
@@ -80,12 +82,13 @@ QT_MOC_LITERAL(40, 472, 5) // "reply"
     "updateData\0size\0updateLayerIDSignal\0"
     "sendColorAndWidthData2\0fillColor\0"
     "strokeColor\0width\0sendColorAndWidthData\0"
-    "vector<int>\0objID\0readGeoJson\0readShape\0"
-    "saveShapefile\0getDatabaseData\0IndexGrids\0"
-    "clearContent\0updateTreeGLSlot\0"
-    "updateLayerIDSlot\0getPostgresqlSlot\0"
-    "getColorAndWidthData\0search\0finishHTTP\0"
-    "QNetworkReply*\0reply"
+    "vector<QString>\0names\0KDEAnaly\0"
+    "readGeoJson\0readShape\0saveShapefile\0"
+    "getDatabaseData\0IndexGrids\0clearContent\0"
+    "updateTreeGLSlot\0updateLayerIDSlot\0"
+    "getPostgresqlSlot\0getColorAndWidthData\0"
+    "search\0finishHTTP\0QNetworkReply*\0reply\0"
+    "KDEAnalyze"
 };
 #undef QT_MOC_LITERAL
 
@@ -95,35 +98,37 @@ static const uint qt_meta_data_MyClass[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      19,   14, // methods
+      21,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       7,       // signalCount
+       8,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    3,  109,    2, 0x06 /* Public */,
-       7,    8,  116,    2, 0x06 /* Public */,
-      14,    1,  133,    2, 0x06 /* Public */,
-      17,    4,  136,    2, 0x06 /* Public */,
-      19,    2,  145,    2, 0x06 /* Public */,
-      20,    4,  150,    2, 0x06 /* Public */,
-      24,    4,  159,    2, 0x06 /* Public */,
+       1,    3,  119,    2, 0x06 /* Public */,
+       7,    8,  126,    2, 0x06 /* Public */,
+      14,    1,  143,    2, 0x06 /* Public */,
+      17,    4,  146,    2, 0x06 /* Public */,
+      19,    2,  155,    2, 0x06 /* Public */,
+      20,    4,  160,    2, 0x06 /* Public */,
+      24,    4,  169,    2, 0x06 /* Public */,
+      27,    1,  178,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      27,    0,  168,    2, 0x08 /* Private */,
-      28,    0,  169,    2, 0x08 /* Private */,
-      29,    0,  170,    2, 0x08 /* Private */,
-      30,    0,  171,    2, 0x08 /* Private */,
-      31,    0,  172,    2, 0x08 /* Private */,
-      32,    0,  173,    2, 0x08 /* Private */,
-      33,    4,  174,    2, 0x08 /* Private */,
-      34,    2,  183,    2, 0x08 /* Private */,
-      35,    6,  188,    2, 0x08 /* Private */,
-      36,    4,  201,    2, 0x08 /* Private */,
-      37,    0,  210,    2, 0x08 /* Private */,
-      38,    1,  211,    2, 0x08 /* Private */,
+      28,    0,  181,    2, 0x08 /* Private */,
+      29,    0,  182,    2, 0x08 /* Private */,
+      30,    0,  183,    2, 0x08 /* Private */,
+      31,    0,  184,    2, 0x08 /* Private */,
+      32,    0,  185,    2, 0x08 /* Private */,
+      33,    0,  186,    2, 0x08 /* Private */,
+      34,    4,  187,    2, 0x08 /* Private */,
+      35,    2,  196,    2, 0x08 /* Private */,
+      36,    6,  201,    2, 0x08 /* Private */,
+      37,    4,  214,    2, 0x08 /* Private */,
+      38,    0,  223,    2, 0x08 /* Private */,
+      39,    1,  224,    2, 0x08 /* Private */,
+      42,    1,  227,    2, 0x08 /* Private */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Int, 0x80000000 | 4, QMetaType::Int,    3,    5,    6,
@@ -133,6 +138,7 @@ static const uint qt_meta_data_MyClass[] = {
     QMetaType::Void, QMetaType::Int, QMetaType::Int,    3,    6,
     QMetaType::Void, QMetaType::Int, QMetaType::QColor, QMetaType::QColor, QMetaType::Float,    6,   21,   22,   23,
     QMetaType::Void, 0x80000000 | 25, QMetaType::QColor, QMetaType::QColor, QMetaType::Float,   26,   21,   22,   23,
+    QMetaType::Void, QMetaType::Int,    6,
 
  // slots: parameters
     QMetaType::Void,
@@ -146,7 +152,8 @@ static const uint qt_meta_data_MyClass[] = {
     QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::QString, QMetaType::QString, QMetaType::QString, QMetaType::QString,    9,   10,   11,   12,   13,    8,
     QMetaType::Void, QMetaType::Int, QMetaType::QColor, QMetaType::QColor, QMetaType::Float,    6,   21,   22,   23,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 39,   40,
+    QMetaType::Void, 0x80000000 | 40,   41,
+    QMetaType::Void, QMetaType::Int,    6,
 
        0        // eod
 };
@@ -163,25 +170,27 @@ void MyClass::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         case 3: _t->updateData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< CGeoMap*(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4]))); break;
         case 4: _t->updateLayerIDSignal((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 5: _t->sendColorAndWidthData2((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< QColor(*)>(_a[3])),(*reinterpret_cast< float(*)>(_a[4]))); break;
-        case 6: _t->sendColorAndWidthData((*reinterpret_cast< vector<int>(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< QColor(*)>(_a[3])),(*reinterpret_cast< float(*)>(_a[4]))); break;
-        case 7: _t->readGeoJson(); break;
-        case 8: _t->readShape(); break;
-        case 9: _t->saveShapefile(); break;
-        case 10: _t->getDatabaseData(); break;
-        case 11: _t->IndexGrids(); break;
-        case 12: _t->clearContent(); break;
-        case 13: _t->updateTreeGLSlot((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< CGeoMap*(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4]))); break;
-        case 14: _t->updateLayerIDSlot((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 15: _t->getPostgresqlSlot((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< QString(*)>(_a[5])),(*reinterpret_cast< QString(*)>(_a[6]))); break;
-        case 16: _t->getColorAndWidthData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< QColor(*)>(_a[3])),(*reinterpret_cast< float(*)>(_a[4]))); break;
-        case 17: _t->search(); break;
-        case 18: _t->finishHTTP((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 6: _t->sendColorAndWidthData((*reinterpret_cast< vector<QString>(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< QColor(*)>(_a[3])),(*reinterpret_cast< float(*)>(_a[4]))); break;
+        case 7: _t->KDEAnaly((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 8: _t->readGeoJson(); break;
+        case 9: _t->readShape(); break;
+        case 10: _t->saveShapefile(); break;
+        case 11: _t->getDatabaseData(); break;
+        case 12: _t->IndexGrids(); break;
+        case 13: _t->clearContent(); break;
+        case 14: _t->updateTreeGLSlot((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< CGeoMap*(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4]))); break;
+        case 15: _t->updateLayerIDSlot((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 16: _t->getPostgresqlSlot((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< QString(*)>(_a[5])),(*reinterpret_cast< QString(*)>(_a[6]))); break;
+        case 17: _t->getColorAndWidthData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< QColor(*)>(_a[3])),(*reinterpret_cast< float(*)>(_a[4]))); break;
+        case 18: _t->search(); break;
+        case 19: _t->finishHTTP((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 20: _t->KDEAnalyze((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
         default: *reinterpret_cast<int*>(_a[0]) = -1; break;
-        case 18:
+        case 19:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
             case 0:
@@ -229,9 +238,15 @@ void MyClass::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
             }
         }
         {
-            typedef void (MyClass::*_t)(vector<int> , QColor , QColor , float );
+            typedef void (MyClass::*_t)(vector<QString> , QColor , QColor , float );
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MyClass::sendColorAndWidthData)) {
                 *result = 6;
+            }
+        }
+        {
+            typedef void (MyClass::*_t)(int );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MyClass::KDEAnaly)) {
+                *result = 7;
             }
         }
     }
@@ -262,13 +277,13 @@ int MyClass::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 19)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 19;
+        _id -= 21;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 19)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 19;
+        _id -= 21;
     }
     return _id;
 }
@@ -316,9 +331,16 @@ void MyClass::sendColorAndWidthData2(int _t1, QColor _t2, QColor _t3, float _t4)
 }
 
 // SIGNAL 6
-void MyClass::sendColorAndWidthData(vector<int> _t1, QColor _t2, QColor _t3, float _t4)
+void MyClass::sendColorAndWidthData(vector<QString> _t1, QColor _t2, QColor _t3, float _t4)
 {
     void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)) };
     QMetaObject::activate(this, &staticMetaObject, 6, _a);
+}
+
+// SIGNAL 7
+void MyClass::KDEAnaly(int _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 7, _a);
 }
 QT_END_MOC_NAMESPACE

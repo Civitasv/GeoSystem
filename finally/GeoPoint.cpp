@@ -37,6 +37,15 @@ float* CGeoPoint::getVert(float *vert,int *count){
 	return vert;
 }
 
+float* CGeoPoint::getVert2(float *vert){
+	// 重新分配内存
+	vert = new float[3];
+	vert[0] = pt.x();
+	vert[1] = pt.y();
+	vert[2] = 0.0f;
+	return vert;
+}
+
 QRectF CGeoPoint::getScope(){
 	return QRectF(pt.x(), pt.y(), pt.x(), pt.y());
 }

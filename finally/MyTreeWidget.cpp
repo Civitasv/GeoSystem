@@ -71,6 +71,8 @@ void MyTreeWidget::createMenu(){
 	connect(act5, SIGNAL(triggered(bool)), this, SLOT(showIndexGrids()));
 	QAction* act6 = popMenu->addAction("hideIndexGrids");
 	connect(act6, SIGNAL(triggered(bool)), this, SLOT(hideIndexGrids()));
+	QAction* act7 = popMenu->addAction("KDE");
+	connect(act7, SIGNAL(triggered(bool)), this, SLOT(analyzeKDE()));
 }
 
 void MyTreeWidget::sltShowPopMenu(const QPoint& pos)//槽函数
@@ -148,3 +150,13 @@ void MyTreeWidget::deleteIt()
 	updateMyTreeWidgetSlot(this->map);
 }
 
+void MyTreeWidget::analyzeKDE(){
+	// 删除map的第几个
+	QModelIndex index = this->currentIndex();
+	int layerID = index.row();
+	if(map->geoLayers[layerID]->type!=0){
+		QMessageBox::critical(NULL, QString::fromLocal8Bit("不支持的类型"), QString::fromLocal8Bit("仅支持对点要素图层进行核密度分析"), QMessageBox::Yes, QMessageBox::Yes);  
+		return;
+	}
+	emit KDEAnalyze(layerID);
+}

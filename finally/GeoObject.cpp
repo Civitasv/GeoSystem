@@ -39,6 +39,9 @@ float* CGeoObject::getVert(float *vert,int *count){
 	return 0;
 }
 
+float* CGeoObject::getVert2(float *vert){
+	return nullptr;
+}
 
 QRectF CGeoObject::getScope(){
 	return QRectF();

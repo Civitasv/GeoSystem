@@ -39,6 +39,7 @@ public:
     QAction *actionGet_databaseData;
     QAction *actionIndex_grid;
     QAction *actionHideIndexGrid;
+    QAction *actionKDE;
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout;
@@ -84,6 +85,8 @@ public:
         actionIndex_grid->setObjectName(QStringLiteral("actionIndex_grid"));
         actionHideIndexGrid = new QAction(MyClassClass);
         actionHideIndexGrid->setObjectName(QStringLiteral("actionHideIndexGrid"));
+        actionKDE = new QAction(MyClassClass);
+        actionKDE->setObjectName(QStringLiteral("actionKDE"));
         centralWidget = new QWidget(MyClassClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout_2 = new QVBoxLayout(centralWidget);
@@ -194,6 +197,7 @@ public:
         actionGet_databaseData->setText(QApplication::translate("MyClassClass", "get databaseData", 0));
         actionIndex_grid->setText(QApplication::translate("MyClassClass", "showIndexGrid", 0));
         actionHideIndexGrid->setText(QApplication::translate("MyClassClass", "hideIndexGrid", 0));
+        actionKDE->setText(QApplication::translate("MyClassClass", "KDE", 0));
         pushButton->setText(QString());
         pushButton_2->setText(QString());
         menu->setTitle(QApplication::translate("MyClassClass", "file", 0));

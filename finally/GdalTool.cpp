@@ -212,13 +212,7 @@ CGeoLayer* GdalTool::readShape(const char* filename){
 			str.insert(QString::fromLocal8Bit(poFeaDefn->GetFieldDefn(iField)->GetNameRef()),QString::fromLocal8Bit(poFeature->GetFieldAsString(iField)));
 		}
 		object->setProps(str);
-		if(object->getType().compare("Point")!=0){
-			// 设置范围
-			OGREnvelope *envelope2 = new OGREnvelope;
-			geo->getEnvelope(envelope2);
-			object->setRect(QRectF(QPointF(envelope2->MinX,envelope2->MaxY),QPointF(envelope2->MaxX,envelope2->MinY)));
-			object->centriod = object->getRect().center();
-		}
+
 		geolayer->addObjects(object);
 		OGRFeature::DestroyFeature( poFeature );
 
@@ -228,6 +222,11 @@ CGeoLayer* GdalTool::readShape(const char* filename){
 	xmlReader.readSLDFile("G:\\finally\\polygon.xml",geolayer);
 	geolayer->setPropsKey();
 	makeIndex(geolayer);
+	// 如果是Polygon，进行剖分
+	if(geolayer->type==2){
+		CGeoLayer *tessaLayer = subvision(geolayer);
+		geolayer->tessaLayer = tessaLayer;
+	}
 	return geolayer;
 }
 

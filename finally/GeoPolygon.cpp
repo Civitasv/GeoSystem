@@ -69,6 +69,18 @@ float* CGeoPolygon::getVert(float *vert,int* count){
 	*/
 }
 
+float* CGeoPolygon::getVert2(float *vert){
+	// 判断polygon
+	// 重新分配内存
+	vert = new float[3*pts.size()];
+
+	for(int i=0;i<pts.size();i++){
+		vert[i*3] = pts[i].x();
+		vert[i*3+1] = pts[i].y();
+		vert[i*3+2] = 0.0f;
+	}
+	return vert;
+}
 QRectF CGeoPolygon::getScope(){
 	QRectF rect;
 	QPointF topleft;

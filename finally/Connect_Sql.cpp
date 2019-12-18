@@ -309,5 +309,10 @@ CGeoLayer* Connect_Sql::ConnectToDBGetShpByGdal( QString dbname,QString port,QSt
 	xmlReader.readSLDFile("G:\\finally\\polygon.xml",geolayer);
 	geolayer->setPropsKey();
 	makeIndex(geolayer);
+	// 如果是Polygon，进行剖分
+	if(geolayer->type==2){
+		CGeoLayer *tessaLayer = subvision(geolayer);
+		geolayer->tessaLayer = tessaLayer;
+	}
 	return geolayer;
 }

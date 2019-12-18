@@ -7,6 +7,7 @@
 #include <qmenu.h>
 #include "dialog.h"
 #include "AttributeTable.h"
+#include <qmessagebox.h>
 class MyTreeWidget:public QTreeWidget
 {
 	Q_OBJECT
@@ -36,6 +37,7 @@ private:
 		void getColorAndWidth(QColor fillColor,QColor strokeColor,float width);
 		void showIndexGrids();
 		void hideIndexGrids();
+		void analyzeKDE();
 signals:
 		void updateTreeGLSignal(int mode,CGeoMap *map,int layerID,int size);
 		void updateLayerIDSignal(int mode,int layerID);
@@ -43,5 +45,6 @@ signals:
 		void sendColorAndWidthData(int index,QColor fillColor,QColor strokeColor,float width);//÷ÿ–¬‰÷»æ–≈∫≈
 		void showAttri(CGeoLayer* layer);
 		void IndexGrids();
+		void KDEAnalyze(int layerID);
 };
 

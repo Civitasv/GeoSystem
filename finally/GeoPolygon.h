@@ -13,6 +13,8 @@ public:
 	void addPoint(QPointF pt);
 	void paint(QPainter *paint);
 	float* getVert(float *vert,int *count);
+	float* getVert2(float *vert);
+
 	QRectF getScope();
 };
 

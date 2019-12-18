@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MyTreeWidget_t {
-    QByteArrayData data[32];
-    char stringdata0[333];
+    QByteArrayData data[34];
+    char stringdata0[355];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -51,16 +51,18 @@ QT_MOC_LITERAL(18, 166, 9), // "showAttri"
 QT_MOC_LITERAL(19, 176, 10), // "CGeoLayer*"
 QT_MOC_LITERAL(20, 187, 5), // "layer"
 QT_MOC_LITERAL(21, 193, 10), // "IndexGrids"
-QT_MOC_LITERAL(22, 204, 22), // "updateMyTreeWidgetSlot"
-QT_MOC_LITERAL(23, 227, 9), // "itemClick"
-QT_MOC_LITERAL(24, 237, 6), // "viewIt"
-QT_MOC_LITERAL(25, 244, 8), // "deleteIt"
-QT_MOC_LITERAL(26, 253, 14), // "sltShowPopMenu"
-QT_MOC_LITERAL(27, 268, 7), // "serProp"
-QT_MOC_LITERAL(28, 276, 9), // "openAttri"
-QT_MOC_LITERAL(29, 286, 16), // "getColorAndWidth"
-QT_MOC_LITERAL(30, 303, 14), // "showIndexGrids"
-QT_MOC_LITERAL(31, 318, 14) // "hideIndexGrids"
+QT_MOC_LITERAL(22, 204, 10), // "KDEAnalyze"
+QT_MOC_LITERAL(23, 215, 22), // "updateMyTreeWidgetSlot"
+QT_MOC_LITERAL(24, 238, 9), // "itemClick"
+QT_MOC_LITERAL(25, 248, 6), // "viewIt"
+QT_MOC_LITERAL(26, 255, 8), // "deleteIt"
+QT_MOC_LITERAL(27, 264, 14), // "sltShowPopMenu"
+QT_MOC_LITERAL(28, 279, 7), // "serProp"
+QT_MOC_LITERAL(29, 287, 9), // "openAttri"
+QT_MOC_LITERAL(30, 297, 16), // "getColorAndWidth"
+QT_MOC_LITERAL(31, 314, 14), // "showIndexGrids"
+QT_MOC_LITERAL(32, 329, 14), // "hideIndexGrids"
+QT_MOC_LITERAL(33, 344, 10) // "analyzeKDE"
 
     },
     "MyTreeWidget\0updateTreeGLSignal\0\0mode\0"
@@ -68,10 +70,10 @@ QT_MOC_LITERAL(31, 318, 14) // "hideIndexGrids"
     "updateColorAndWidth\0r\0g\0b\0width\0"
     "sendColorAndWidthData\0index\0fillColor\0"
     "strokeColor\0showAttri\0CGeoLayer*\0layer\0"
-    "IndexGrids\0updateMyTreeWidgetSlot\0"
+    "IndexGrids\0KDEAnalyze\0updateMyTreeWidgetSlot\0"
     "itemClick\0viewIt\0deleteIt\0sltShowPopMenu\0"
     "serProp\0openAttri\0getColorAndWidth\0"
-    "showIndexGrids\0hideIndexGrids"
+    "showIndexGrids\0hideIndexGrids\0analyzeKDE"
 };
 #undef QT_MOC_LITERAL
 
@@ -81,32 +83,34 @@ static const uint qt_meta_data_MyTreeWidget[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      16,   14, // methods
+      18,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       6,       // signalCount
+       7,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    4,   94,    2, 0x06 /* Public */,
-       8,    2,  103,    2, 0x06 /* Public */,
-       9,    4,  108,    2, 0x06 /* Public */,
-      14,    4,  117,    2, 0x06 /* Public */,
-      18,    1,  126,    2, 0x06 /* Public */,
-      21,    0,  129,    2, 0x06 /* Public */,
+       1,    4,  104,    2, 0x06 /* Public */,
+       8,    2,  113,    2, 0x06 /* Public */,
+       9,    4,  118,    2, 0x06 /* Public */,
+      14,    4,  127,    2, 0x06 /* Public */,
+      18,    1,  136,    2, 0x06 /* Public */,
+      21,    0,  139,    2, 0x06 /* Public */,
+      22,    1,  140,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      22,    1,  130,    2, 0x08 /* Private */,
-      23,    0,  133,    2, 0x08 /* Private */,
-      24,    0,  134,    2, 0x08 /* Private */,
-      25,    0,  135,    2, 0x08 /* Private */,
-      26,    1,  136,    2, 0x08 /* Private */,
-      27,    0,  139,    2, 0x08 /* Private */,
-      28,    0,  140,    2, 0x08 /* Private */,
-      29,    3,  141,    2, 0x08 /* Private */,
-      30,    0,  148,    2, 0x08 /* Private */,
-      31,    0,  149,    2, 0x08 /* Private */,
+      23,    1,  143,    2, 0x08 /* Private */,
+      24,    0,  146,    2, 0x08 /* Private */,
+      25,    0,  147,    2, 0x08 /* Private */,
+      26,    0,  148,    2, 0x08 /* Private */,
+      27,    1,  149,    2, 0x08 /* Private */,
+      28,    0,  152,    2, 0x08 /* Private */,
+      29,    0,  153,    2, 0x08 /* Private */,
+      30,    3,  154,    2, 0x08 /* Private */,
+      31,    0,  161,    2, 0x08 /* Private */,
+      32,    0,  162,    2, 0x08 /* Private */,
+      33,    0,  163,    2, 0x08 /* Private */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Int, 0x80000000 | 4, QMetaType::Int, QMetaType::Int,    3,    5,    6,    7,
@@ -115,6 +119,7 @@ static const uint qt_meta_data_MyTreeWidget[] = {
     QMetaType::Void, QMetaType::Int, QMetaType::QColor, QMetaType::QColor, QMetaType::Float,   15,   16,   17,   13,
     QMetaType::Void, 0x80000000 | 19,   20,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    6,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 4,    5,
@@ -125,6 +130,7 @@ static const uint qt_meta_data_MyTreeWidget[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QColor, QMetaType::QColor, QMetaType::Float,   16,   17,   13,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -143,16 +149,18 @@ void MyTreeWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         case 3: _t->sendColorAndWidthData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< QColor(*)>(_a[3])),(*reinterpret_cast< float(*)>(_a[4]))); break;
         case 4: _t->showAttri((*reinterpret_cast< CGeoLayer*(*)>(_a[1]))); break;
         case 5: _t->IndexGrids(); break;
-        case 6: _t->updateMyTreeWidgetSlot((*reinterpret_cast< CGeoMap*(*)>(_a[1]))); break;
-        case 7: _t->itemClick(); break;
-        case 8: _t->viewIt(); break;
-        case 9: _t->deleteIt(); break;
-        case 10: _t->sltShowPopMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
-        case 11: _t->serProp(); break;
-        case 12: _t->openAttri(); break;
-        case 13: _t->getColorAndWidth((*reinterpret_cast< QColor(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< float(*)>(_a[3]))); break;
-        case 14: _t->showIndexGrids(); break;
-        case 15: _t->hideIndexGrids(); break;
+        case 6: _t->KDEAnalyze((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->updateMyTreeWidgetSlot((*reinterpret_cast< CGeoMap*(*)>(_a[1]))); break;
+        case 8: _t->itemClick(); break;
+        case 9: _t->viewIt(); break;
+        case 10: _t->deleteIt(); break;
+        case 11: _t->sltShowPopMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
+        case 12: _t->serProp(); break;
+        case 13: _t->openAttri(); break;
+        case 14: _t->getColorAndWidth((*reinterpret_cast< QColor(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< float(*)>(_a[3]))); break;
+        case 15: _t->showIndexGrids(); break;
+        case 16: _t->hideIndexGrids(); break;
+        case 17: _t->analyzeKDE(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -194,6 +202,12 @@ void MyTreeWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
                 *result = 5;
             }
         }
+        {
+            typedef void (MyTreeWidget::*_t)(int );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MyTreeWidget::KDEAnalyze)) {
+                *result = 6;
+            }
+        }
     }
 }
 
@@ -222,13 +236,13 @@ int MyTreeWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 16)
+        if (_id < 18)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 16;
+        _id -= 18;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 16)
+        if (_id < 18)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 16;
+        _id -= 18;
     }
     return _id;
 }
@@ -272,5 +286,12 @@ void MyTreeWidget::showAttri(CGeoLayer * _t1)
 void MyTreeWidget::IndexGrids()
 {
     QMetaObject::activate(this, &staticMetaObject, 5, Q_NULLPTR);
+}
+
+// SIGNAL 6
+void MyTreeWidget::KDEAnalyze(int _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 6, _a);
 }
 QT_END_MOC_NAMESPACE

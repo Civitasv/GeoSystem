@@ -15,8 +15,9 @@ MyClass::MyClass(QWidget *parent)
 	QObject::connect(this,SIGNAL(updateLayerIDSignal(int,int)),gl,SLOT(updateLayerID(int,int)));
 	QObject::connect(mywizard,SIGNAL(sendPostgresqlData(QString ,QString ,QString ,QString ,QString ,QString )),this,SLOT(getPostgresqlSlot(QString ,QString ,QString ,QString ,QString ,QString )));
 	QObject::connect(this,SIGNAL(sendColorAndWidthData2(int ,QColor ,QColor,float )),gl,SLOT(getColorAndWidthData2(int ,QColor ,QColor,float  )));
-	QObject::connect(this,SIGNAL(sendColorAndWidthData(vector<int> ,QColor ,QColor ,float )),gl,SLOT(getColorAndWidthObjs(vector<int> ,QColor ,QColor ,float)));
+	QObject::connect(this,SIGNAL(sendColorAndWidthData(vector<QString> ,QColor ,QColor ,float )),gl,SLOT(getColorAndWidthObjs(vector<QString> ,QColor ,QColor ,float)));
 	QObject::connect(ui.pushButton_2,SIGNAL(clicked()),this,SLOT(clearContent()));
+	QObject::connect(this,SIGNAL(KDEAnaly(int)),gl,SLOT(KDEAnaly(int)));
 
 	ui.verticalLayout_2->addWidget(gl);
 	//this->setWindowIcon(QIcon(":/qss_icons/rc/address.svg"));
@@ -267,7 +268,8 @@ void MyClass::search(){
 void MyClass::finishHTTP(QNetworkReply *reply)
 {
 	QString result = reply->readAll();
-	vector<int> objID;
+	vector<QString> names;
+	//QString name;
 	// 解析result
 	QJsonParseError parseError;
 	QJsonDocument jsonDocument = QJsonDocument::fromJson(result.toUtf8(), &parseError);
@@ -283,18 +285,18 @@ void MyClass::finishHTTP(QNetworkReply *reply)
 		//查询到了结果
 		for (int i = 0; i < jsonObject["resultList"].toArray().size(); i++) {
 			QJsonObject resultObj = jsonObject["resultList"].toArray()[i].toObject();
-			QString name = resultObj["name"].toString();
+			names.push_back(resultObj["name"].toString());
 			int index = resultObj["id"].toString().toInt();
 			double area = resultObj["area"].toString().toDouble();
-			objID.push_back(index);
-			info += QString::fromLocal8Bit("地区名字:") + name + QString::fromLocal8Bit(",地区面积:") + QString::number(area) + QString::fromLocal8Bit("万平方千米\n");
+			//objID.push_back(index);
+			info += QString::fromLocal8Bit("地区名字:") + resultObj["name"].toString() + QString::fromLocal8Bit(",地区面积:") + QString::number(area) + QString::fromLocal8Bit("万平方千米\n");
 		}
 		QMessageBox::information(NULL, QString::fromLocal8Bit("查询结果"), info, QMessageBox::Yes, QMessageBox::Yes);  
 		// 发送信号使objID上色
 		QColor fillColor("#b97016");
 		QColor strokeColor("#ca590a");
 		float strokeWidth = 1.5;
-		emit sendColorAndWidthData(objID,fillColor,strokeColor,strokeWidth);
+		emit sendColorAndWidthData(names,fillColor,strokeColor,strokeWidth);
 	}
 	else {
 		QMessageBox::critical(NULL, QString::fromLocal8Bit("查询结果"), QString::fromLocal8Bit("查询失败!"), QMessageBox::Yes, QMessageBox::Yes);  
@@ -307,4 +309,8 @@ void MyClass::finishHTTP(QNetworkReply *reply)
 
 void MyClass::clearContent(){
 	ui.lineEdit->clear();
+}
+
+void MyClass::KDEAnalyze(int layerID){
+	emit KDEAnaly(layerID);
 }

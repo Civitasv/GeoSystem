@@ -18,6 +18,7 @@
 #include "Connect_Sql.h"
 #include <QGraphicsDropShadowEffect>
 #include "SeekEleAttri.h"
+#include "KernelWidget.h"
 class MyGLWidget:public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
 	Q_OBJECT
@@ -53,10 +54,14 @@ private:
 	QColor prevFillColor,prevStrokeColor; // 当前选择的颜色和之前的颜色
 	float prevStrokeWidth;
 	vector<int> objID;
+	vector<QString> names;
 	//QColor objFillColor,objStrokeColor; // 设置的颜色
 	//float objStrokeWidth;
 	QString dbname, host, user, password, table,port; // postgresql配置
+	
+	
 	SeekEleAttri *seek;
+	KernelWidget *kernel;
 	void createShader(const char* vertexPath, const char* fragmentPath);
 	void checkCompileErrors(unsigned int shader, std::string type);
 	void loadData();
@@ -80,8 +85,11 @@ protected:
 		void updateLayerID(int mode,int LayerID);
 		void getColorAndWidthData2(int layerID,QColor fillColor,QColor strokeColor,float width);//重新渲染信号
 		void getColorAndWidthOneObj(int objID,QColor fillColor,QColor strokeColor,float width);//重新渲染一个object
-		void getColorAndWidthObjs(vector<int> objID,QColor fillColor,QColor strokeColor,float width);//重新渲染查找到的object
+		void getColorAndWidthObjs(vector<QString> names,QColor fillColor,QColor strokeColor,float width);//重新渲染查找到的object
 		void restore(int objID);
+		void KDEAnaly(int layerID);
 signals:
 		void showAttriTable(CGeoObject *object,int objID);
+		void KDEAnalyze(float bandWidth,float **loc,float maxLoc,float minLoc);
+
 };

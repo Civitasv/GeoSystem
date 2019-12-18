@@ -160,6 +160,12 @@
     <ClCompile Include="GeneratedFiles\debug\moc_SeekEleAttri.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="KernelWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\debug\moc_KernelWidget.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="myclass.h">
@@ -225,6 +231,12 @@
     <CustomBuild Include="SeekEleAttri.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="KernelWidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="KernelWidget.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Connect_Sql.h">
@@ -288,6 +300,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_SeekEleAttri.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_KernelWidget.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

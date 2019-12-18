@@ -48,6 +48,7 @@ public:
 	bool paintLoc;
 	int type; // 0:point 1:polyline 2:polygon
 	QuadTree* tree;
+	CGeoLayer* tessaLayer; // ÆÊ·Ö½á¹û
 
 };
 

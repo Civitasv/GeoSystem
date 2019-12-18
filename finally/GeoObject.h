@@ -37,6 +37,7 @@ public:
 	virtual void paint(QPainter *paint);
 
 	virtual float* getVert(float *vert,int *count);
+	virtual float* getVert2(float *vert);
 
 	virtual QRectF getScope();
 };

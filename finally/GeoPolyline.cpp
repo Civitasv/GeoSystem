@@ -41,6 +41,19 @@ float* CGeoPolyline::getVert(float *vert,int *count){
 	return vert;
 }
 
+float* CGeoPolyline::getVert2(float *vert){
+	// 判断polygon
+	// 重新分配内存
+	vert = new float[3*pts.size()];
+
+	for(int i=0;i<pts.size();i++){
+		vert[i*3] = pts[i].x();
+		vert[i*3+1] = pts[i].y();
+		vert[i*3+2] = 0.0f;
+	}
+	return vert;
+}
+
 QRectF CGeoPolyline::getScope(){
 	QRectF rect;
 	QPointF topleft;
