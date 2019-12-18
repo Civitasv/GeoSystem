@@ -33,6 +33,7 @@ public:
 	CGeoMap *map;
 	int layerID; // 要展示的layerID
 	CGeoLayer *viewLayer; // 展示的layer
+	CGeoLayer *coloursLayer; // 展示的layer
 	QRectF rect; // 展示的layer的rect
 	QRectF originWorldRect;
 	CGeoObject *choosed;
@@ -58,7 +59,7 @@ private:
 	//QColor objFillColor,objStrokeColor; // 设置的颜色
 	//float objStrokeWidth;
 	QString dbname, host, user, password, table,port; // postgresql配置
-	
+	bool layerColours; // 分层设色标识
 	
 	SeekEleAttri *seek;
 	KernelWidget *kernel;
@@ -88,6 +89,7 @@ protected:
 		void getColorAndWidthObjs(vector<QString> names,QColor fillColor,QColor strokeColor,float width);//重新渲染查找到的object
 		void restore(int objID);
 		void KDEAnaly(int layerID);
+		void setLayerClours(int layerID,QString attribute); // 分层设色
 signals:
 		void showAttriTable(CGeoObject *object,int objID);
 		void KDEAnalyze(float bandWidth,float **loc,float maxLoc,float minLoc);

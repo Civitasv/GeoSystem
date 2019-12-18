@@ -12,7 +12,9 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	choosed = new CGeoObject();
 	seek = new SeekEleAttri();
 	kernel = new KernelWidget();
+	coloursLayer = new CGeoLayer();
 	size = 0;
+	layerColours = false;
 	QCursor cursor;
 	cursor.setShape(Qt::ArrowCursor);
 	setCursor(cursor);
@@ -169,18 +171,18 @@ void MyGLWidget::paintGL(){
 	for(int i=0;i<map->geoLayers.size();i++){
 		if(!map->geoLayers[i]->getVisible()&& map->geoLayers[i]->type==2){
 			count += map->geoLayers[i]->geoObjects.size()*2; // 越过两次
-			count++; //格网
+			count++; //越过格网
 
 			continue;
 		}
 		else if(!map->geoLayers[i]->getVisible()&& map->geoLayers[i]->type==1){
-			count++; //格网
+			count++; //越过格网
 			count += map->geoLayers[i]->geoObjects.size();
 			continue;
 		}
 		else if(!map->geoLayers[i]->getVisible()&& map->geoLayers[i]->type==0){
 			count+= map->geoLayers[i]->geoObjects.size();;
-			count++; //格网
+			count++; //越过格网
 			continue;
 		}
 		if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==2){
@@ -311,12 +313,12 @@ void MyGLWidget::loadData(){
 
 	size = 0;
 	for(int i=0;i<map->geoLayers.size();i++){
-		if(map->geoLayers[i]->getVisible() && (map->geoLayers[i]->type==2 || map->geoLayers[i]->type==1)){ // 可见且为POLYGON
+		if(/*map->geoLayers[i]->getVisible() &&*/ map->geoLayers[i]->type==2 ){ // 可见且为POLYGON
 			// 对每一个POLYGON LAYER的每一个object生成两个VBO和VAO对象 内部填充+外部轮廓
 			size += map->geoLayers[i]->geoObjects.size()*2;
 		}
-		else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==0){ // 可见且为POINT
-			// 对每一个POINT LAYER仅生成一个VBO和VAO对象
+		else if(/*map->geoLayers[i]->getVisible() &&*/ (map->geoLayers[i]->type==0|| map->geoLayers[i]->type==1)){ // 可见且为POINT or POLYLINE
+			// 对每一个POINT LAYER每一个object生成一个VBO和VAO对象
 			size += map->geoLayers[i]->geoObjects.size();
 		}
 		/*else if(map->geoLayers[i]->getVisible() && map->geoLayers[i]->type==1){ // 可见且为POLYLINE
@@ -327,7 +329,7 @@ void MyGLWidget::loadData(){
 	}
 	qDebug()<<size;
 	// 重新分配内存
-	size+=map->geoLayers.size();
+	size+=map->geoLayers.size(); // 每一个layer有一个格网
 	VAO = new GLuint[size];
 	VBO = new GLuint[size];
 	len =  new int[size];
@@ -336,7 +338,7 @@ void MyGLWidget::loadData(){
 	int num = 0;
 	for(int j=0;j<map->geoLayers.size();j++){
 		CGeoLayer *temp = map->geoLayers[j];
-		if(temp->getVisible() && temp->type==2 ){ // 需要剖分
+		if(/*temp->getVisible() &&*/ temp->type==2 ){ // 需要剖分
 			CGeoLayer *tessaLayer = temp->tessaLayer;
 			for(int i=0;i<tessaLayer->geoObjects.size();i++){ // 内部填充
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
@@ -401,7 +403,7 @@ void MyGLWidget::loadData(){
 				num++;
 			}
 		}
-		else if(temp->getVisible() &&  temp->type==1){
+		else if(/*temp->getVisible() &&*/  temp->type==1){
 			for(int i=0;i<temp->geoObjects.size();i++){
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
 				/*float *vertices =  new float();
@@ -433,7 +435,7 @@ void MyGLWidget::loadData(){
 				num++;
 			}
 		}
-		else if(temp->getVisible() && temp->type==0){
+		else if(/*temp->getVisible() &&*/ temp->type==0){
 			for(int i=0;i<temp->geoObjects.size();i++){
 				// 对于每一个VAO和VBO,count是Geobject的顶点数组的数目
 				/*float *vertices =  new float();
@@ -692,6 +694,21 @@ void MyGLWidget::mousePressEvent(QMouseEvent* event){
 		originWorldRect = rect;
 	}
 	else if(event->button() == Qt::RightButton){
+		if(layerColours){
+			for(int j=0;j<coloursLayer->geoObjects.size();j++){
+				CGeoObject *object = coloursLayer->geoObjects[j];
+				// 还原
+				object->fillR = prevFillColor.redF();
+				object->fillG = prevFillColor.greenF();
+				object->fillB = prevFillColor.blueF();
+				object->fillAlpha = prevFillColor.alphaF();
+				object->strokeR = prevStrokeColor.redF();
+				object->strokeG = prevStrokeColor.greenF();
+				object->strokeB = prevStrokeColor.blueF();
+				object->strokeAlpha = prevStrokeColor.alphaF();
+				object->strokeWidth = prevStrokeWidth;
+			}
+		}
 		for(int i=0;i<this->objID.size();i++){ // 把上次查到的恢复
 			CGeoObject *obj =viewLayer->geoObjects[this->objID.at(i)];
 			obj->fillR = prevFillColor.redF();
@@ -894,4 +911,97 @@ void MyGLWidget::KDEAnaly(int layerID){
 		}
 	}
 	emit KDEAnalyze(bandWidth,loc, maxLoc,minLoc);
+}
+
+void MyGLWidget::setLayerClours(int layerID,QString attribute){
+	coloursLayer = map->geoLayers[layerID];
+	// 得到最大最小值
+	double maxAttri,minAttri;
+	for(int i=0;i<coloursLayer->geoObjects.size();i++){
+		CGeoObject *obj = coloursLayer->geoObjects[i];
+		bool ok;
+		double attri = obj->getProps()[attribute].toDouble(&ok);
+		if(!ok){
+			for(int j=0;j<coloursLayer->geoObjects.size();j++){
+				CGeoObject *object = coloursLayer->geoObjects[j];
+				// 还原
+				object->fillR = prevFillColor.redF();
+				object->fillG = prevFillColor.greenF();
+				object->fillB = prevFillColor.blueF();
+				object->fillAlpha = prevFillColor.alphaF();
+				object->strokeR = prevStrokeColor.redF();
+				object->strokeG = prevStrokeColor.greenF();
+				object->strokeB = prevStrokeColor.blueF();
+				object->strokeAlpha = prevStrokeColor.alphaF();
+				object->strokeWidth = prevStrokeWidth;
+			}
+			QMessageBox::critical(NULL, QString::fromLocal8Bit("不支持的类型"), QString::fromLocal8Bit("该属性无法进行分层设色！"), QMessageBox::Yes, QMessageBox::Yes);  
+			return;
+		}
+		if(i==0)
+		{
+			maxAttri=minAttri=attri;
+		}
+		else if(attri>maxAttri)
+			maxAttri=attri;
+		else if(attri<minAttri)
+			minAttri=attri;
+	}
+	// 对Area属性进行分层设色
+	for(int i=0;i<coloursLayer->geoObjects.size();i++){
+		CGeoObject *obj = coloursLayer->geoObjects[i];
+		double attri = obj->getProps()[attribute].toDouble();
+		float a=(attri-minAttri)/(maxAttri-minAttri); 
+		if(a>=0&&a<0.25){
+			QColor fillColor("#CFAA9E");
+			QColor strokeColor("#CFAA9E");
+			obj->fillR = fillColor.redF();
+			obj->fillG = fillColor.greenF();
+			obj->fillB = fillColor.blueF();
+			obj->fillAlpha = fillColor.alphaF();
+			obj->strokeR = strokeColor.redF();
+			obj->strokeG = strokeColor.greenF();
+			obj->strokeB = strokeColor.blueF();
+			obj->strokeAlpha = strokeColor.alphaF();
+		}
+		else if(a>=0.25&&a<0.5){
+			QColor fillColor("#DE7E73");
+			QColor strokeColor("#DE7E73");
+			obj->fillR = fillColor.redF();
+			obj->fillG = fillColor.greenF();
+			obj->fillB = fillColor.blueF();
+			obj->fillAlpha = fillColor.alphaF();
+			obj->strokeR = strokeColor.redF();
+			obj->strokeG = strokeColor.greenF();
+			obj->strokeB = strokeColor.blueF();
+			obj->strokeAlpha = strokeColor.alphaF();
+		}
+		else if(a>=0.5&&a<0.75){
+			QColor fillColor("#ED9282");
+			QColor strokeColor("#ED9282");
+			obj->fillR = fillColor.redF();
+			obj->fillG = fillColor.greenF();
+			obj->fillB = fillColor.blueF();
+			obj->fillAlpha = fillColor.alphaF();
+			obj->strokeR = strokeColor.redF();
+			obj->strokeG = strokeColor.greenF();
+			obj->strokeB = strokeColor.blueF();
+			obj->strokeAlpha = strokeColor.alphaF();
+		}
+		else if(a>=0.75&&a<=1){
+			QColor fillColor("#F7AA97");
+			QColor strokeColor("#F7AA97");
+			obj->fillR = fillColor.redF();
+			obj->fillG = fillColor.greenF();
+			obj->fillB = fillColor.blueF();
+			obj->fillAlpha = fillColor.alphaF();
+			obj->strokeR = strokeColor.redF();
+			obj->strokeG = strokeColor.greenF();
+			obj->strokeB = strokeColor.blueF();
+			obj->strokeAlpha = strokeColor.alphaF();
+		}
+	}
+	choosed = new CGeoObject();
+	layerColours = true;
+	update();
 }

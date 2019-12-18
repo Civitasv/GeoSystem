@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MyGLWidget_t {
-    QByteArrayData data[40];
-    char stringdata0[394];
+    QByteArrayData data[42];
+    char stringdata0[419];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -68,7 +68,9 @@ QT_MOC_LITERAL(35, 334, 20), // "getColorAndWidthObjs"
 QT_MOC_LITERAL(36, 355, 15), // "vector<QString>"
 QT_MOC_LITERAL(37, 371, 5), // "names"
 QT_MOC_LITERAL(38, 377, 7), // "restore"
-QT_MOC_LITERAL(39, 385, 8) // "KDEAnaly"
+QT_MOC_LITERAL(39, 385, 8), // "KDEAnaly"
+QT_MOC_LITERAL(40, 394, 14), // "setLayerClours"
+QT_MOC_LITERAL(41, 409, 9) // "attribute"
 
     },
     "MyGLWidget\0showAttriTable\0\0CGeoObject*\0"
@@ -81,7 +83,8 @@ QT_MOC_LITERAL(39, 385, 8) // "KDEAnaly"
     "getColorAndWidthData2\0fillColor\0"
     "strokeColor\0width\0getColorAndWidthOneObj\0"
     "getColorAndWidthObjs\0vector<QString>\0"
-    "names\0restore\0KDEAnaly"
+    "names\0restore\0KDEAnaly\0setLayerClours\0"
+    "attribute"
 };
 #undef QT_MOC_LITERAL
 
@@ -91,7 +94,7 @@ static const uint qt_meta_data_MyGLWidget[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -99,19 +102,20 @@ static const uint qt_meta_data_MyGLWidget[] = {
        2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,   69,    2, 0x06 /* Public */,
-       6,    4,   74,    2, 0x06 /* Public */,
+       1,    2,   74,    2, 0x06 /* Public */,
+       6,    4,   79,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      12,    3,   83,    2, 0x0a /* Public */,
-      17,    8,   90,    2, 0x0a /* Public */,
-      24,    4,  107,    2, 0x0a /* Public */,
-      28,    2,  116,    2, 0x0a /* Public */,
-      30,    4,  121,    2, 0x0a /* Public */,
-      34,    4,  130,    2, 0x0a /* Public */,
-      35,    4,  139,    2, 0x0a /* Public */,
-      38,    1,  148,    2, 0x0a /* Public */,
-      39,    1,  151,    2, 0x0a /* Public */,
+      12,    3,   88,    2, 0x0a /* Public */,
+      17,    8,   95,    2, 0x0a /* Public */,
+      24,    4,  112,    2, 0x0a /* Public */,
+      28,    2,  121,    2, 0x0a /* Public */,
+      30,    4,  126,    2, 0x0a /* Public */,
+      34,    4,  135,    2, 0x0a /* Public */,
+      35,    4,  144,    2, 0x0a /* Public */,
+      38,    1,  153,    2, 0x0a /* Public */,
+      39,    1,  156,    2, 0x0a /* Public */,
+      40,    2,  159,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, 0x80000000 | 3, QMetaType::Int,    4,    5,
@@ -127,6 +131,7 @@ static const uint qt_meta_data_MyGLWidget[] = {
     QMetaType::Void, 0x80000000 | 36, QMetaType::QColor, QMetaType::QColor, QMetaType::Float,   37,   31,   32,   33,
     QMetaType::Void, QMetaType::Int,    5,
     QMetaType::Void, QMetaType::Int,   16,
+    QMetaType::Void, QMetaType::Int, QMetaType::QString,   16,   41,
 
        0        // eod
 };
@@ -148,6 +153,7 @@ void MyGLWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 8: _t->getColorAndWidthObjs((*reinterpret_cast< vector<QString>(*)>(_a[1])),(*reinterpret_cast< QColor(*)>(_a[2])),(*reinterpret_cast< QColor(*)>(_a[3])),(*reinterpret_cast< float(*)>(_a[4]))); break;
         case 9: _t->restore((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 10: _t->KDEAnaly((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 11: _t->setLayerClours((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -195,13 +201,13 @@ int MyGLWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 12)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 11;
+        _id -= 12;
     }
     return _id;
 }

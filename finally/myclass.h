@@ -59,6 +59,7 @@ signals:
 	void sendColorAndWidthData2(int layerID,QColor fillColor,QColor strokeColor,float width);//重新渲染信号
 	void sendColorAndWidthData(vector<QString> names,QColor fillColor,QColor strokeColor,float width);//重新渲染信号
 	void KDEAnaly(int layerID);
+	void sendLayerClours(int layerID,QString attri);
 
 	private slots:
 		void updateTreeGLSlot(int mode,CGeoMap *map,int layerID,int size);
@@ -68,6 +69,8 @@ signals:
 		void search();
 		void finishHTTP(QNetworkReply *reply);
 		void KDEAnalyze(int layerID);
+		void getLayerClours(int layerID,QString attri);
+
 };
 
 #endif // MYCLASS_H

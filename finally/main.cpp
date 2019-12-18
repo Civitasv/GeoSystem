@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 	QObject::connect(treeWidget,SIGNAL(sendColorAndWidthData(int,QColor,QColor,float)),w,SLOT(getColorAndWidthData(int,QColor,QColor,float)),Qt::UniqueConnection);
 	QObject::connect(treeWidget,SIGNAL(IndexGrids()),w,SLOT(IndexGrids()),Qt::UniqueConnection);
 	QObject::connect(treeWidget,SIGNAL(KDEAnalyze(int)),w,SLOT(KDEAnalyze(int)),Qt::UniqueConnection);
+	QObject::connect(treeWidget,SIGNAL(setLayerCol(int,QString)),w,SLOT(getLayerClours(int,QString)),Qt::UniqueConnection);
 
 	w->show();
 	treeWidget->show();

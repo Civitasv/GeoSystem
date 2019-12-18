@@ -8,6 +8,7 @@
 #include "dialog.h"
 #include "AttributeTable.h"
 #include <qmessagebox.h>
+#include "LayerColoursSet.h"
 class MyTreeWidget:public QTreeWidget
 {
 	Q_OBJECT
@@ -21,6 +22,7 @@ private:
 	CGeoMap *map;
 	Dialog *dialog;
 	AttributeTable *attri;
+	LayerColoursSet *layerColoursSet;
 	void createActions();
 	void createMenu();
 	int loc,deletesize;
@@ -38,6 +40,9 @@ private:
 		void showIndexGrids();
 		void hideIndexGrids();
 		void analyzeKDE();
+		void layerColours();
+		void getAttribute(int layerID,QString attribute);  // 得到用于分级设色的属性
+
 signals:
 		void updateTreeGLSignal(int mode,CGeoMap *map,int layerID,int size);
 		void updateLayerIDSignal(int mode,int layerID);
@@ -46,5 +51,8 @@ signals:
 		void showAttri(CGeoLayer* layer);
 		void IndexGrids();
 		void KDEAnalyze(int layerID);
+		void setLayerClours(int layerID,QString layerNAME,QList<QString> propsKey);
+		void setLayerCol(int layerID,QString attri); // 分级设色
+
 };
 

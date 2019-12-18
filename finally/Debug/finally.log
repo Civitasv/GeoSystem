@@ -1,8 +1,2 @@
-﻿  KernelWidget.cpp
-  MyGLWidget.cpp
-  正在生成代码...
-g:\finally\finally\myglwidget.cpp(351): warning C4700: 使用了未初始化的局部变量“vertices”
-g:\finally\finally\myglwidget.cpp(382): warning C4700: 使用了未初始化的局部变量“vertices”
-g:\finally\finally\myglwidget.cpp(414): warning C4700: 使用了未初始化的局部变量“vertices”
-g:\finally\finally\myglwidget.cpp(446): warning C4700: 使用了未初始化的局部变量“vertices”
+﻿  MyTreeWidget.cpp
   finally.vcxproj -> G:\finally\Win32\Debug\finally.exe

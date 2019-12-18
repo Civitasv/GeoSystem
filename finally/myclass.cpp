@@ -18,6 +18,7 @@ MyClass::MyClass(QWidget *parent)
 	QObject::connect(this,SIGNAL(sendColorAndWidthData(vector<QString> ,QColor ,QColor ,float )),gl,SLOT(getColorAndWidthObjs(vector<QString> ,QColor ,QColor ,float)));
 	QObject::connect(ui.pushButton_2,SIGNAL(clicked()),this,SLOT(clearContent()));
 	QObject::connect(this,SIGNAL(KDEAnaly(int)),gl,SLOT(KDEAnaly(int)));
+	QObject::connect(this,SIGNAL(sendLayerClours(int,QString)),gl,SLOT(setLayerClours(int,QString)));
 
 	ui.verticalLayout_2->addWidget(gl);
 	//this->setWindowIcon(QIcon(":/qss_icons/rc/address.svg"));
@@ -313,4 +314,8 @@ void MyClass::clearContent(){
 
 void MyClass::KDEAnalyze(int layerID){
 	emit KDEAnaly(layerID);
+}
+
+void MyClass::getLayerClours(int layerID,QString attri){
+	emit sendLayerClours(layerID,attri);
 }

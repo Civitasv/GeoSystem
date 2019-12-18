@@ -9,6 +9,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
 	this->setHeaderLabel(QString::fromLocal8Bit("图层"));
 	dialog = new Dialog();
 	attri = new AttributeTable();
+	layerColoursSet = new LayerColoursSet();
 	createActions();
 	createMenu();
 	setContextMenuPolicy(Qt::CustomContextMenu);  //设置枚举值
@@ -28,8 +29,10 @@ void MyTreeWidget::updateMyTreeWidgetSlot(CGeoMap *map){
 	this->map = map;
 	for(int i=0;i<map->geoLayers.size();i++){
 		QTreeWidgetItem *item = new QTreeWidgetItem(this,QStringList(map->geoLayers[i]->getLayerName()));
-
-		item->setCheckState(0,Qt::Checked);
+		if(map->geoLayers[i]->getVisible())
+			item->setCheckState(0,Qt::Checked);
+		else
+			item->setCheckState(0,Qt::Unchecked);
 	}
 }
 
@@ -54,6 +57,8 @@ void MyTreeWidget::createActions(){
 	//connect(ui.view_this, &QAction::triggered, this, &MyTreeWidget::viewIt);
 	connect(this,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(itemClick()),Qt::UniqueConnection);
 	connect(this,SIGNAL(showAttri(CGeoLayer*)),attri,SLOT(showAttri(CGeoLayer*)),Qt::UniqueConnection);
+	connect(this,SIGNAL(setLayerClours(int ,QString ,QList<QString> )),layerColoursSet,SLOT(setAttribute(int ,QString ,QList<QString>)),Qt::UniqueConnection);
+	connect(layerColoursSet,SIGNAL(setLayerClours(int ,QString  )),this,SLOT(getAttribute(int ,QString )),Qt::UniqueConnection);
 
 }
 
@@ -73,8 +78,18 @@ void MyTreeWidget::createMenu(){
 	connect(act6, SIGNAL(triggered(bool)), this, SLOT(hideIndexGrids()));
 	QAction* act7 = popMenu->addAction("KDE");
 	connect(act7, SIGNAL(triggered(bool)), this, SLOT(analyzeKDE()));
+	QAction* act8 = popMenu->addAction("Layer Colours");
+	connect(act8, SIGNAL(triggered(bool)), this, SLOT(layerColours()));
 }
 
+void MyTreeWidget::layerColours(){
+	QModelIndex index = this->currentIndex();
+	int layerID = index.row();
+	QString layerNAME = map->geoLayers[layerID]->getLayerName();
+	QList<QString> propsKey = map->geoLayers[layerID]->getPropsKey();
+	emit setLayerClours(layerID,layerNAME,propsKey);
+	layerColoursSet->show();
+}
 void MyTreeWidget::sltShowPopMenu(const QPoint& pos)//槽函数
 {
 
@@ -119,6 +134,10 @@ void MyTreeWidget::getColorAndWidth(QColor fillColor,QColor strokeColor,float wi
 	QModelIndex index = this->currentIndex();
 	int layerID = index.row();
 	emit sendColorAndWidthData(layerID,fillColor,strokeColor,width);
+}
+
+void MyTreeWidget::getAttribute(int layerID,QString attribute){
+	emit setLayerCol(layerID,attribute);
 }
 
 //右键选项的执行函数
